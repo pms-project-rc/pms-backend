@@ -2,10 +2,15 @@
 Application Configuration
 """
 from pydantic_settings import BaseSettings
-from typing import List
+from pydantic import field_validator
+from typing import List, Union
 
 
 class Settings(BaseSettings):
+    # Environment
+    DEBUG: bool = False
+    ENVIRONMENT: str = "development"
+    
     # Project Info
     PROJECT_NAME: str = "PMS API"
     VERSION: str = "0.1.0"
@@ -23,7 +28,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql://pms_user:pms_password@localhost:5432/pms_db"
     
     # CORS
-    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173"]
+    ALLOWED_ORIGINS: Union[List[str], str] = ["http://localhost:3000", "http://localhost:5173", "http://localhost:5174", "http://localhost:5175"]
     
     # Email (SMTP)
     SMTP_HOST: str = "smtp.gmail.com"
@@ -33,10 +38,21 @@ class Settings(BaseSettings):
     EMAILS_FROM_EMAIL: str = "noreply@pms.com"
     EMAILS_FROM_NAME: str = "PMS System"
     
+    # Frontend URL
+    FRONTEND_URL: str = "http://localhost:5173"
+    
     # Business Rules
     HELMET_FEE: int = 1000  # COP
     DATA_RETENTION_DAYS: int = 365
     GLOBAL_BONUS_PERCENTAGE: float = 15.0  # Default bonus %
+    
+    @field_validator('ALLOWED_ORIGINS', mode='before')
+    @classmethod
+    def parse_cors(cls, v: Union[str, List[str]]) -> List[str]:
+        """Parse ALLOWED_ORIGINS from comma-separated string or list."""
+        if isinstance(v, str):
+            return [origin.strip() for origin in v.split(',')]
+        return v
     
     class Config:
         env_file = ".env"
