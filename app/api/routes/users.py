@@ -164,6 +164,42 @@ async def update_global_admin(
     return admin
 
 
+
+@router.patch(
+    "/global-admins/{admin_id}/toggle-active",
+    response_model=GlobalAdminResponse,
+    summary="Activar/Desactivar Global Admin",
+    description="Cambia el estado activo/inactivo de un administrador global"
+)
+async def toggle_global_admin_active(
+    admin_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """Activa o desactiva un Global Admin."""
+    repository = SQLAlchemyGlobalAdminRepository(db)
+    
+    # Obtener el admin actual
+    get_use_case = GetGlobalAdminByIdUseCase(repository)
+    admin = await get_use_case.execute(admin_id)
+    
+    if not admin:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Global Admin con ID {admin_id} no encontrado"
+        )
+    
+    # Cambiar el estado
+    update_use_case = UpdateGlobalAdminUseCase(repository)
+    updated_admin = await update_use_case.execute(
+        admin_id=admin_id,
+        full_name=admin.full_name,
+        phone=admin.phone,
+        is_active=not admin.is_active
+    )
+    
+    return updated_admin
+
+
 @router.delete(
     "/global-admins/{admin_id}",
     response_model=MessageResponse,
@@ -186,6 +222,7 @@ async def delete_global_admin(
         )
     
     return MessageResponse(message=f"Global Admin con ID {admin_id} eliminado exitosamente")
+
 
 
 # ========== OPERATIONAL ADMINS ==========
@@ -291,6 +328,41 @@ async def update_operational_admin(
     return admin
 
 
+
+@router.patch(
+    "/operational-admins/{admin_id}/toggle-active",
+    response_model=OperationalAdminResponse,
+    summary="Activar/Desactivar Operational Admin"
+)
+async def toggle_operational_admin_active(
+    admin_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """Activa o desactiva un Operational Admin."""
+    repository = SQLAlchemyOperationalAdminRepository(db)
+    
+    # Obtener el admin actual
+    get_use_case = GetOperationalAdminByIdUseCase(repository)
+    admin = await get_use_case.execute(admin_id)
+    
+    if not admin:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Operational Admin con ID {admin_id} no encontrado"
+        )
+    
+    # Cambiar el estado
+    update_use_case = UpdateOperationalAdminUseCase(repository)
+    updated_admin = await update_use_case.execute(
+        admin_id=admin_id,
+        full_name=admin.full_name,
+        phone=admin.phone,
+        is_active=not admin.is_active
+    )
+    
+    return updated_admin
+
+
 @router.delete(
     "/operational-admins/{admin_id}",
     response_model=MessageResponse,
@@ -312,6 +384,7 @@ async def delete_operational_admin(
         )
     
     return MessageResponse(message=f"Operational Admin con ID {admin_id} eliminado exitosamente")
+
 
 
 # ========== WASHERS ==========
@@ -440,6 +513,47 @@ async def update_washer(
         )
 
 
+
+@router.patch(
+    "/washers/{washer_id}/toggle-active",
+    response_model=WasherResponse,
+    summary="Activar/Desactivar Washer"
+)
+async def toggle_washer_active(
+    washer_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """Activa o desactiva un Washer."""
+    repository = SQLAlchemyWasherRepository(db)
+    
+    # Obtener el washer actual
+    get_use_case = GetWasherByIdUseCase(repository)
+    washer = await get_use_case.execute(washer_id)
+    
+    if not washer:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Washer con ID {washer_id} no encontrado"
+        )
+    
+    # Cambiar el estado
+    update_use_case = UpdateWasherUseCase(repository)
+    try:
+        updated_washer = await update_use_case.execute(
+            washer_id=washer_id,
+            full_name=washer.full_name,
+            phone=washer.phone,
+            commission_percentage=washer.commission_percentage,
+            is_active=not washer.is_active
+        )
+        return updated_washer
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+
 @router.delete(
     "/washers/{washer_id}",
     response_model=MessageResponse,
@@ -461,3 +575,4 @@ async def delete_washer(
         )
     
     return MessageResponse(message=f"Washer con ID {washer_id} eliminado exitosamente")
+
