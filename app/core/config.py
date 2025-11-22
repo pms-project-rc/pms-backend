@@ -8,7 +8,7 @@ from typing import List, Union
 
 class Settings(BaseSettings):
     # Environment
-    DEBUG: bool = False
+    DEBUG: bool = True
     ENVIRONMENT: str = "development"
     
     # Project Info
@@ -28,7 +28,16 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql://pms_user:pms_password@localhost:5432/pms_db"
     
     # CORS
-    ALLOWED_ORIGINS: Union[List[str], str] = ["http://localhost:3000", "http://localhost:5173", "http://localhost:5174", "http://localhost:5175"]
+    ALLOWED_ORIGINS: Union[List[str], str] = [
+        "http://localhost:3000", 
+        "http://localhost:5173", 
+        "http://localhost:5174", 
+        "http://localhost:5175",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5174",
+        "http://127.0.0.1:5175"
+    ]
     
     # Email (SMTP)
     SMTP_HOST: str = "smtp.gmail.com"
