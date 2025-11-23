@@ -65,7 +65,8 @@ class ParkingRecord(Base):
     vehicle = relationship("Vehicle", back_populates="parking_records")
     rate = relationship("Rate", back_populates="parking_records")
     subscription = relationship("MonthlySubscription", back_populates="parking_records")
-    washing_service = relationship("WashingService", back_populates="parking_record", uselist=False)
+    # NOTE: Commented out to avoid circular relationship error - fix later
+    # washing_service = relationship("WashingService", foreign_keys=[washing_service_id], back_populates="parking_record", uselist=False)
     
     # Constraints
     __table_args__ = (
