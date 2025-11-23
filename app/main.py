@@ -64,8 +64,6 @@ async def general_exception_handler(request: Request, exc: Exception):
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(users_router, prefix="/api/v1")
 
-from app.api.routes.v1 import washers
-app.include_router(washers.router, prefix="/api/v1/washing")
 
 @app.get("/")
 async def root():

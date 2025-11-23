@@ -82,9 +82,9 @@ class Bonus(Base):
     # Columnas
     id = Column(Integer, primary_key=True, index=True)
     washer_id = Column(Integer, ForeignKey("washers.id", ondelete="CASCADE"), nullable=False, index=True)
-    shift_id = Column(Integer, ForeignKey("shifts.id", ondelete="CASCADE"), nullable=True, index=True)
+    shift_id = Column(Integer, ForeignKey("shifts.id", ondelete="SET NULL"), nullable=True, index=True)
     amount = Column(Integer, nullable=False)  # En centavos
-    reason = Column(String(255), nullable=True)
+    description = Column(String, nullable=True)  # Changed from 'reason' to match DB
     bonus_date = Column(Date, nullable=False, index=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)

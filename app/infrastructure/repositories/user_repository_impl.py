@@ -9,12 +9,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from app.domain.users.entities import GlobalAdmin, OperationalAdmin, Washer
+from app.domain.users.entities import GlobalAdmin, OperationalAdmin
+from app.domain.washers import Washer
 from app.domain.users.repositories import (
     GlobalAdminRepository,
     OperationalAdminRepository,
-    WasherRepository
 )
+from app.domain.washers import WasherRepository
 from app.infrastructure.database.models.users import (
     GlobalAdmin as GlobalAdminModel,
     OperationalAdmin as OperationalAdminModel,

@@ -45,12 +45,7 @@ from app.infrastructure.repositories import (
     SQLAlchemyWasherRepository,
 )
 
-# Importar bcrypt para hashear contraseñas
-import bcrypt
-
-def hash_password(password: str) -> str:
-    """Hash a password using bcrypt."""
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+from app.core.security import get_password_hash
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -62,17 +57,14 @@ router = APIRouter(prefix="/users", tags=["users"])
     response_model=GlobalAdminResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Crear Global Admin",
-    description="Crea un nuevo administrador global del sistema"
+    description="Crea un nuevo administrador global del sistema",
+    tags=["Global Admins"]
 )
 async def create_global_admin(
     request: CreateGlobalAdminRequest,
     db: AsyncSession = Depends(get_db)
 ):
     """Crea un nuevo Global Admin."""
-    # Hash de la contraseña
-    password_hash = hash_password(request.password)
-    
-    # Crear repositorio y caso de uso
     repository = SQLAlchemyGlobalAdminRepository(db)
     use_case = CreateGlobalAdminUseCase(repository)
     
@@ -95,7 +87,8 @@ async def create_global_admin(
     "/global-admins/{admin_id}",
     response_model=GlobalAdminResponse,
     summary="Obtener Global Admin por ID",
-    description="Obtiene un administrador global por su ID"
+    description="Obtiene un administrador global por su ID",
+    tags=["Global Admins"]
 )
 async def get_global_admin(
     admin_id: int,
@@ -118,7 +111,8 @@ async def get_global_admin(
     "/global-admins",
     response_model=List[GlobalAdminResponse],
     summary="Listar Global Admins",
-    description="Lista todos los administradores globales con paginación"
+    description="Lista todos los administradores globales con paginación",
+    tags=["Global Admins"]
 )
 async def list_global_admins(
     skip: int = 0,
@@ -138,7 +132,8 @@ async def list_global_admins(
     "/global-admins/{admin_id}",
     response_model=GlobalAdminResponse,
     summary="Actualizar Global Admin",
-    description="Actualiza un administrador global existente"
+    description="Actualiza un administrador global existente",
+    tags=["Global Admins"]
 )
 async def update_global_admin(
     admin_id: int,
@@ -169,7 +164,8 @@ async def update_global_admin(
     "/global-admins/{admin_id}/toggle-active",
     response_model=GlobalAdminResponse,
     summary="Activar/Desactivar Global Admin",
-    description="Cambia el estado activo/inactivo de un administrador global"
+    description="Cambia el estado activo/inactivo de un administrador global",
+    tags=["Global Admins"]
 )
 async def toggle_global_admin_active(
     admin_id: int,
@@ -204,7 +200,8 @@ async def toggle_global_admin_active(
     "/global-admins/{admin_id}",
     response_model=MessageResponse,
     summary="Eliminar Global Admin",
-    description="Elimina un administrador global"
+    description="Elimina un administrador global",
+    tags=["Global Admins"]
 )
 async def delete_global_admin(
     admin_id: int,
@@ -231,14 +228,15 @@ async def delete_global_admin(
     "/operational-admins",
     response_model=OperationalAdminResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Crear Operational Admin"
+    summary="Crear Operational Admin",
+    tags=["Operational Admins"]
 )
 async def create_operational_admin(
     request: CreateOperationalAdminRequest,
     db: AsyncSession = Depends(get_db)
 ):
     """Crea un nuevo Operational Admin."""
-    password_hash = hash_password(request.password)
+    password_hash = get_password_hash(request.password)
     
     repository = SQLAlchemyOperationalAdminRepository(db)
     use_case = CreateOperationalAdminUseCase(repository)
@@ -261,7 +259,8 @@ async def create_operational_admin(
 @router.get(
     "/operational-admins/{admin_id}",
     response_model=OperationalAdminResponse,
-    summary="Obtener Operational Admin por ID"
+    summary="Obtener Operational Admin por ID",
+    tags=["Operational Admins"]
 )
 async def get_operational_admin(
     admin_id: int,
@@ -283,7 +282,8 @@ async def get_operational_admin(
 @router.get(
     "/operational-admins",
     response_model=List[OperationalAdminResponse],
-    summary="Listar Operational Admins"
+    summary="Listar Operational Admins",
+    tags=["Operational Admins"]
 )
 async def list_operational_admins(
     skip: int = 0,
@@ -302,7 +302,8 @@ async def list_operational_admins(
 @router.put(
     "/operational-admins/{admin_id}",
     response_model=OperationalAdminResponse,
-    summary="Actualizar Operational Admin"
+    summary="Actualizar Operational Admin",
+    tags=["Operational Admins"]
 )
 async def update_operational_admin(
     admin_id: int,
@@ -332,7 +333,8 @@ async def update_operational_admin(
 @router.patch(
     "/operational-admins/{admin_id}/toggle-active",
     response_model=OperationalAdminResponse,
-    summary="Activar/Desactivar Operational Admin"
+    summary="Activar/Desactivar Operational Admin",
+    tags=["Operational Admins"]
 )
 async def toggle_operational_admin_active(
     admin_id: int,
@@ -366,7 +368,8 @@ async def toggle_operational_admin_active(
 @router.delete(
     "/operational-admins/{admin_id}",
     response_model=MessageResponse,
-    summary="Eliminar Operational Admin"
+    summary="Eliminar Operational Admin",
+    tags=["Operational Admins"]
 )
 async def delete_operational_admin(
     admin_id: int,
@@ -393,14 +396,15 @@ async def delete_operational_admin(
     "/washers",
     response_model=WasherResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Crear Washer (Lavador)"
+    summary="Crear Washer (Lavador)",
+    tags=["Washers"]
 )
 async def create_washer(
     request: CreateWasherRequest,
     db: AsyncSession = Depends(get_db)
 ):
     """Crea un nuevo Washer."""
-    password_hash = hash_password(request.password)
+    password_hash = get_password_hash(request.password)
     
     repository = SQLAlchemyWasherRepository(db)
     use_case = CreateWasherUseCase(repository)
@@ -424,7 +428,8 @@ async def create_washer(
 @router.get(
     "/washers/{washer_id}",
     response_model=WasherResponse,
-    summary="Obtener Washer por ID"
+    summary="Obtener Washer por ID",
+    tags=["Washers"]
 )
 async def get_washer(
     washer_id: int,
@@ -446,7 +451,8 @@ async def get_washer(
 @router.get(
     "/washers",
     response_model=List[WasherResponse],
-    summary="Listar Washers"
+    summary="Listar Washers",
+    tags=["Washers"]
 )
 async def list_washers(
     skip: int = 0,
@@ -480,7 +486,8 @@ async def list_washers(
 @router.put(
     "/washers/{washer_id}",
     response_model=WasherResponse,
-    summary="Actualizar Washer"
+    summary="Actualizar Washer",
+    tags=["Washers"]
 )
 async def update_washer(
     washer_id: int,
@@ -517,7 +524,8 @@ async def update_washer(
 @router.patch(
     "/washers/{washer_id}/toggle-active",
     response_model=WasherResponse,
-    summary="Activar/Desactivar Washer"
+    summary="Activar/Desactivar Washer",
+    tags=["Washers"]
 )
 async def toggle_washer_active(
     washer_id: int,
@@ -557,7 +565,8 @@ async def toggle_washer_active(
 @router.delete(
     "/washers/{washer_id}",
     response_model=MessageResponse,
-    summary="Eliminar Washer"
+    summary="Eliminar Washer",
+    tags=["Washers"]
 )
 async def delete_washer(
     washer_id: int,

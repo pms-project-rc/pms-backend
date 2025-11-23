@@ -3,8 +3,7 @@ Casos de uso para la gestión de Washers (Lavadores).
 """
 from typing import Optional, List
 from datetime import datetime
-from app.domain.users.entities import Washer
-from app.domain.users.repositories import WasherRepository
+from app.domain.washers import Washer, WasherRepository
 from app.domain.users.events import UserCreatedEvent, UserUpdatedEvent
 
 

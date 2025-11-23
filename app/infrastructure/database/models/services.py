@@ -43,27 +43,24 @@ class WashingService(Base):
     # Columnas
     id = Column(Integer, primary_key=True, index=True)
     vehicle_id = Column(Integer, ForeignKey("vehicles.id", ondelete="CASCADE"), nullable=False, index=True)
-    parking_record_id = Column(Integer, ForeignKey("parking_records.id", ondelete="CASCADE"), nullable=True, unique=True)
-    washer_id = Column(Integer, ForeignKey("washers.id", ondelete="RESTRICT"), nullable=True)
+    washer_id = Column(Integer, ForeignKey("washers.id", ondelete="SET NULL"), nullable=True)
     service_type = Column(String(50), nullable=False)  # Básico, Completo, Premium
     service_date = Column(TIMESTAMP(timezone=True), nullable=False, index=True)
-    price = Column(Integer, nullable=False)  # En centavos
+    total_cost = Column(Integer, nullable=False)  # En centavos (matches DB column name)
     payment_status = Column(String(20), default="pending")  # pending, paid, cancelled
-    notes = Column(String(255), nullable=True)
+    notes = Column(String, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     
     # Relaciones
     vehicle = relationship("Vehicle", back_populates="washing_services")
-    # NOTE: Commented out to avoid circular relationship error - fix later  
-    # parking_record = relationship("ParkingRecord", foreign_keys=[parking_record_id], back_populates="washing_service")
     washer = relationship("Washer", back_populates="washing_services")
     
     # Constraints
     __table_args__ = (
         Index('ix_washing_services_service_date', 'service_date'),
         Index('ix_washing_services_payment_status', 'payment_status'),
-        CheckConstraint('price >= 0', name='check_washing_services_price_positive'),
+        CheckConstraint('total_cost >= 0', name='check_washing_services_price_positive'),
         CheckConstraint(
             "payment_status IN ('pending', 'paid', 'cancelled')", 
             name='check_washing_services_payment_status_valid'
@@ -71,4 +68,4 @@ class WashingService(Base):
     )
     
     def __repr__(self):
-        return f"<WashingService(id={self.id}, type='{self.service_type}', price={self.price})>"
+        return f"<WashingService(id={self.id}, type='{self.service_type}', total_cost={self.total_cost})>"
