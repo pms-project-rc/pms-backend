@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+
 from app.domain.washers.entities.washer import Washer
 
 
@@ -10,11 +10,11 @@ class IWasherRepository(ABC):
         pass
 
     @abstractmethod
-    async def list(self) -> List[Washer]:
+    async def list(self) -> list[Washer]:
         pass
 
     @abstractmethod
-    async def get(self, washer_id: int) -> Optional[Washer]:
+    async def get(self, washer_id: int) -> Washer | None:
         pass
 
     @abstractmethod

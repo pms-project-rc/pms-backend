@@ -30,77 +30,61 @@ Base = declarative_base(metadata=metadata)
 # IMPORTANTE: Todos los modelos DEBEN estar importados para que Alembic los detecte
 
 # Modelos de Usuarios
-from app.infrastructure.database.models.users import (
-    GlobalAdmin,
-    OperationalAdmin,
-    Washer
-)
-
-# Modelos de Vehículos y Parqueo
-from app.infrastructure.database.models.vehicles import (
-    Vehicle,
-    ParkingRecord
-)
+# Modelos de Gestión Financiera
+from app.infrastructure.database.models.financial import Bonus, Expense, Shift, Voucher
 
 # Modelos de Servicios y Tarifas
-from app.infrastructure.database.models.services import (
-    Rate,
-    WashingService
-)
+from app.infrastructure.database.models.services import Rate, WashingService
 
 # Modelos de Suscripciones y Convenios
 from app.infrastructure.database.models.subscriptions import (
-    MonthlySubscription,
     Agreement,
-    AgreementVehicle
-)
-
-# Modelos de Gestión Financiera
-from app.infrastructure.database.models.financial import (
-    Shift,
-    Expense,
-    Bonus,
-    Voucher
+    AgreementVehicle,
+    MonthlySubscription,
 )
 
 # Modelos de Sistema y Configuración
 from app.infrastructure.database.models.system import (
-    BusinessConfig,
     AuditLog,
-    Notification,
+    BusinessConfig,
     FinancialReport,
-    PasswordResetToken
+    Notification,
+    PasswordResetToken,
 )
+from app.infrastructure.database.models.users import GlobalAdmin, OperationalAdmin, Washer
+
+# Modelos de Vehículos y Parqueo
+from app.infrastructure.database.models.vehicles import ParkingRecord, Vehicle
 
 __all__ = [
     # Base
     "Base",
     "metadata",
-    
+
     # Usuarios
     "GlobalAdmin",
     "OperationalAdmin",
     "Washer",
-    
+
     # Vehículos y Parqueo
     "Vehicle",
     "ParkingRecord",
-    
+
     # Servicios y Tarifas
     "Rate",
     "WashingService",
-    
+
     # Suscripciones y Convenios
     "MonthlySubscription",
     "Agreement",
     "AgreementVehicle",
-    
+
     # Gestión Financiera
     "Shift",
     "Expense",
     "Bonus",
     "Voucher",
-    
+
     # Sistema y Configuración
     "BusinessConfig",
     "AuditLog",

@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class WasherResponse(BaseModel):
     id: int
     name: str

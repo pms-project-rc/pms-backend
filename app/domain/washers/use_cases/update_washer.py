@@ -1,6 +1,6 @@
-from app.domain.washers.repositories.washer_repository import IWasherRepository
-from app.domain.washers.entities.washer import Washer
 from app.application.dto.washers.washer_request import WasherUpdateRequest
+from app.domain.washers.entities.washer import Washer
+from app.domain.washers.repositories.washer_repository import IWasherRepository
 
 
 class UpdateWasher:

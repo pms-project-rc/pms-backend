@@ -1,6 +1,5 @@
-from typing import List, Optional
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, delete
+
+from sqlalchemy import delete, select, update
 
 from app.domain.washers.entities.washer import Washer
 from app.domain.washers.repositories.washer_repository import IWasherRepository
@@ -16,12 +15,12 @@ class WasherRepositoryImpl(IWasherRepository):
             await session.refresh(washer)
             return washer
 
-    async def list(self) -> List[Washer]:
+    async def list(self) -> list[Washer]:
         async with get_session() as session:
             result = await session.execute(select(Washer))
             return result.scalars().all()
 
-    async def get(self, washer_id: int) -> Optional[Washer]:
+    async def get(self, washer_id: int) -> Washer | None:
         async with get_session() as session:
             result = await session.execute(
                 select(Washer).where(Washer.id == washer_id)
