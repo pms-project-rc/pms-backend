@@ -67,7 +67,7 @@ class WashingService(Base):
 
     # Relaciones
     vehicle = relationship("Vehicle", back_populates="washing_services")
-    parking_record = relationship("ParkingRecord", back_populates="washing_service")
+    parking_record = relationship("ParkingRecord", back_populates="washing_service", foreign_keys=[parking_record_id])
     washer = relationship("Washer", back_populates="washing_services")
 
     # Constraints

@@ -15,17 +15,15 @@ class GlobalAdmin(Base):
 
     # Columnas
     id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
     email = Column(String(100), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
-    full_name = Column(String(100), nullable=False)
-    phone = Column(String(20), nullable=True)
     is_active = Column(Boolean, default=True, index=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
-    last_login = Column(TIMESTAMP(timezone=True), nullable=True)
 
     def __repr__(self):
-        return f"<GlobalAdmin(id={self.id}, email='{self.email}')>"
+        return f"<GlobalAdmin(id={self.id}, name='{self.name}', email='{self.email}')>"
 
 
 class OperationalAdmin(Base):
@@ -35,20 +33,18 @@ class OperationalAdmin(Base):
 
     # Columnas
     id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
     email = Column(String(100), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
-    full_name = Column(String(100), nullable=False)
-    phone = Column(String(20), nullable=True)
     is_active = Column(Boolean, default=True, index=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
-    last_login = Column(TIMESTAMP(timezone=True), nullable=True)
 
     # Relaciones
     shifts = relationship("Shift", back_populates="admin", cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f"<OperationalAdmin(id={self.id}, email='{self.email}')>"
+        return f"<OperationalAdmin(id={self.id}, name='{self.name}', email='{self.email}')>"
 
 
 class Washer(Base):
@@ -58,15 +54,12 @@ class Washer(Base):
 
     # Columnas
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String(100), unique=True, nullable=False, index=True)
-    password_hash = Column(String(255), nullable=False)
-    full_name = Column(String(100), nullable=False)
+    name = Column(String(100), nullable=False)
+    email = Column(String(100), unique=True, nullable=True, index=True)
     phone = Column(String(20), nullable=True)
-    commission_percentage = Column(Integer, default=0)  # 0-100
     is_active = Column(Boolean, default=True, index=True)
+    total_bonuses = Column(Integer, default=0)  # En centavos
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
-    updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
-    last_login = Column(TIMESTAMP(timezone=True), nullable=True)
 
     # Relaciones
     washing_services = relationship("WashingService", back_populates="washer", cascade="all, delete-orphan")
@@ -81,5 +74,5 @@ class Washer(Base):
     )
 
     def __repr__(self):
-        return f"<Washer(id={self.id}, email='{self.email}', name='{self.full_name}')>"
+        return f"<Washer(id={self.id}, name='{self.name}', email='{self.email}')>"
 

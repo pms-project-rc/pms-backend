@@ -75,7 +75,7 @@ class ParkingRecord(Base):
     vehicle = relationship("Vehicle", back_populates="parking_records")
     rate = relationship("Rate", back_populates="parking_records")
     subscription = relationship("MonthlySubscription", back_populates="parking_records")
-    washing_service = relationship("WashingService", back_populates="parking_record", uselist=False)
+    washing_service = relationship("WashingService", back_populates="parking_record", uselist=False, foreign_keys="[WashingService.parking_record_id]")
 
     # Constraints
     __table_args__ = (
