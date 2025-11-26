@@ -37,7 +37,11 @@ class Settings(BaseSettings):
     HELMET_FEE: int = 1000  # COP
     DATA_RETENTION_DAYS: int = 365
     GLOBAL_BONUS_PERCENTAGE: float = 15.0  # Default bonus %
-    
+
+    # Missing fields from .env
+    DEBUG: bool = False
+    PORT: int = 8000
+
     class Config:
         env_file = ".env"
         case_sensitive = True

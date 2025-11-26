@@ -2,10 +2,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete
 
 from app.domain.users.entities.user import User
-from app.domain.users.repositories.user_repository import IUsersRepository
+from app.domain.users.repositories.user_repository import UsersRepository
 
 
-class UserRepositoryImpl(IUsersRepository):
+
+class UserRepositoryImpl(UsersRepository):
 
     def __init__(self, session: AsyncSession):
         self.session = session

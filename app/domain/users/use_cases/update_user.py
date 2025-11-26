@@ -1,9 +1,9 @@
-from app.domain.users.repositories.user_repository import IUsersRepository
+from app.domain.users.repositories.user_repository import UsersRepository
 from app.application.dto.users.user_request import UserUpdateRequest
 from app.domain.users.entities.user import User
 
 class UpdateUser:
-    def __init__(self, repo: IUsersRepository):
+    def __init__(self, repo: UsersRepository):
         self.repo = repo
 
     async def execute(self, user_id: int, data: UserUpdateRequest):

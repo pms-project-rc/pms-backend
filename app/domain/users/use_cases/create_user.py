@@ -1,17 +1,16 @@
-from app.domain.users.repositories.user_repository import IUsersRepository
+from app.domain.users.repositories.user_repository import UsersRepository
 from app.domain.users.entities.user import User
-from app.application.dto.users.user_request import UserCreateRequest
 
 class CreateUser:
-    def __init__(self, repo: IUsersRepository):
-        self.repo = repo
 
-    async def execute(self, data: UserCreateRequest) -> User:
+    def __init__(self, repository: UsersRepository):
+        self.repository = repository
+
+    async def execute(self, data):
         user = User(
-            id=None,
-            full_name=data.full_name,
+            name=data.name,
             email=data.email,
             phone=data.phone,
-            status=data.status
+            role=data.role,
         )
-        return await self.repo.create(user)
+        return await self.repository.create(user)

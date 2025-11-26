@@ -1,14 +1,11 @@
-from pydantic import BaseModel
-from typing import Optional
-from datetime import datetime
+from pydantic import BaseModel, EmailStr
 
 class UserResponse(BaseModel):
     id: int
-    full_name: str
-    email: str
-    phone: Optional[str]
-    status: str
-    created_at: Optional[datetime]
+    name: str
+    email: EmailStr
+    phone: str | None
+    role: str
 
     class Config:
-        from_attributes = True
+        orm_mode = True

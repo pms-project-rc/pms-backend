@@ -1,9 +1,10 @@
-from app.domain.users.repositories.user_repository import IUsersRepository
+from app.domain.users.repositories.user_repository import UsersRepository
+
 
 class DeleteUser:
-    def __init__(self, repo: IUsersRepository):
-        self.repo = repo
 
-    async def execute(self, user_id: int):
-        await self.repo.delete(user_id)
-        return True
+    def __init__(self, repository: UsersRepository):
+        self.repository = repository
+
+    async def execute(self, user_id: int) -> bool:
+        return await self.repository.delete(user_id)

@@ -1,22 +1,24 @@
 from abc import ABC, abstractmethod
+from typing import List, Optional
 from app.domain.users.entities.user import User
 
-class IUsersRepository(ABC):
+
+class UsersRepository(ABC):
 
     @abstractmethod
     async def create(self, user: User) -> User:
         pass
 
     @abstractmethod
-    async def get_by_id(self, user_id: int) -> User | None:
+    async def get_by_id(self, user_id: int) -> Optional[User]:
         pass
 
     @abstractmethod
-    async def list(self) -> list[User]:
+    async def list_all(self) -> List[User]:
         pass
 
     @abstractmethod
-    async def update(self, user_id: int, user: User) -> User | None:
+    async def update(self, user_id: int, new_data: dict) -> Optional[User]:
         pass
 
     @abstractmethod
