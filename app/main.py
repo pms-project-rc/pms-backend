@@ -4,6 +4,8 @@ FastAPI Application Entry Point
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.routes.v1 import users
+from app.api.routes.v1.users import router as users_router
 from app.api.routes.v1 import auth, users, parking, washing, shifts
 from app.core.config import settings
 
@@ -25,9 +27,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Include API routers
 # app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
-# app.include_router(users.router, prefix="/api/v1/users", tags=["Users"])
+app.include_router(users.router, prefix="/api/v1/users", tags=["Users"])
 # app.include_router(parking.router, prefix="/api/v1/parking", tags=["Parking"])
 # app.include_router(washing.router, prefix="/api/v1/washing", tags=["Washing"])
 # app.include_router(shifts.router, prefix="/api/v1/shifts", tags=["Shifts"])
