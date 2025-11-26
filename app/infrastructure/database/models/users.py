@@ -57,6 +57,7 @@ class Washer(Base):
     name = Column(String(100), nullable=False)
     email = Column(String(100), unique=True, nullable=True, index=True)
     phone = Column(String(20), nullable=True)
+    password_hash = Column(String(255), nullable=True)  # For washer login
     is_active = Column(Boolean, default=True, index=True)
     total_bonuses = Column(Integer, default=0)  # En centavos
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)

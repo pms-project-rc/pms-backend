@@ -41,7 +41,7 @@ class SqlAlchemyUserRepository(UserRepository):
         stmt = select(Washer).where(Washer.email == username)
         result = await self.session.execute(stmt)
         washer = result.scalar_one_or_none()
-        if washer:
+        if washer and washer.password_hash:  # Only allow login if password is set
             return User(
                 id=washer.id,
                 username=washer.email,

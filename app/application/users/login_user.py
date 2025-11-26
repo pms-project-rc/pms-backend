@@ -36,5 +36,9 @@ class LoginUser:
         if not user.active:
              raise InvalidCredentialsException("User is inactive")
 
-        access_token = create_access_token(data={"sub": user.username})
+        access_token = create_access_token(data={
+            "sub": user.username,
+            "role": user.role,
+            "user_id": user.id
+        })
         return TokenDTO(access_token=access_token, token_type="bearer")
