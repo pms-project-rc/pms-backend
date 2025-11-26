@@ -9,11 +9,14 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    Integer,
     String,
+    Enum,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
+from app.domain.parking.value_objects.vehicle_type import VehicleType
 from . import Base
 
 
@@ -27,7 +30,7 @@ class Vehicle(Base):
     plate = Column(String(20), unique=True, nullable=False, index=True)
     owner_name = Column(String(100), nullable=False)
     owner_phone = Column(String(20), nullable=True)
-    vehicle_type = Column(String(50), nullable=False)  # Moto, Carro, etc.
+    vehicle_type = Column(Enum(VehicleType, name='vehicle_type', values_callable=lambda x: [e.value for e in x]), nullable=False)  # Moto, Carro, etc.
     brand = Column(String(50), nullable=True)
     model = Column(String(50), nullable=True)
     color = Column(String(50), nullable=True)
@@ -63,8 +66,10 @@ class ParkingRecord(Base):
     entry_time = Column(TIMESTAMP(timezone=True), nullable=False, index=True)
     exit_time = Column(TIMESTAMP(timezone=True), nullable=True)
     parking_rate_id = Column(Integer, ForeignKey("rates.id", ondelete="RESTRICT"), nullable=False)
-    subscription_id = Column(Integer, ForeignKey("monthly_subscriptions.id", ondelete="SET NULL"), nullable=True)
+    monthly_subscription_id = Column(Integer, ForeignKey("monthly_subscriptions.id", ondelete="SET NULL"), nullable=True)
     washing_service_id = Column(Integer, ForeignKey("washing_services.id", ondelete="SET NULL"), nullable=True)
+    helmet_count = Column(Integer, default=0, nullable=False)  # Number of helmets (motorcycles only)
+    helmet_charge = Column(Integer, default=0, nullable=False)  # Helmet charge in cents
     total_cost = Column(Integer, default=0)  # En centavos
     payment_status = Column(String(20), default="pending")  # pending, paid, cancelled
     notes = Column(String(255), nullable=True)

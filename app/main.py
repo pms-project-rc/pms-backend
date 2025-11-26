@@ -31,9 +31,11 @@ app.add_middleware(
 # app.include_router(washing.router, prefix="/api/v1/washing", tags=["Washing"])
 # app.include_router(shifts.router, prefix="/api/v1/shifts", tags=["Shifts"])
 from app.api.routes.v1 import washers, auth
+from app.api.routes.v1.parking import router as parking_router
 
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(washers.router, prefix="/api/v1/washing")
+app.include_router(parking_router, prefix="/api/v1")
 
 @app.get("/")
 async def root():

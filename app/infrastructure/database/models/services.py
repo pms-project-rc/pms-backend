@@ -9,40 +9,53 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    Integer,
     String,
+    Enum,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
+from app.domain.parking.value_objects.vehicle_type import VehicleType
 from . import Base
 
 
 class Rate(Base):
-    """Modelo para tarifas de parqueo."""
+    """Modelo para tarifas de parqueo y lavado."""
 
     __tablename__ = "rates"
 
     # Columnas
     id = Column(Integer, primary_key=True, index=True)
-    vehicle_type = Column(String(50), nullable=False, index=True)  # Moto, Carro, etc.
-    rate_type = Column(String(50), nullable=False, index=True)  # Hora, Día, Noche, Mes
-    price = Column(Integer, nullable=False)  # En centavos
-    description = Column(String(255), nullable=True)
-    is_active = Column(Boolean, default=True, index=True)
+    vehicle_type = Column(Enum(VehicleType, name='vehicle_type', values_callable=lambda x: [e.value for e in x]), nullable=False, unique=True)
+    parking_rate_per_minute = Column(Integer, nullable=True)  # En centavos
+    parking_flat_rate = Column(Integer, nullable=True)  # En centavos
+    
+    # Tarifas de lavado
+    wash_basico = Column(Integer, nullable=True)
+    wash_especial = Column(Integer, nullable=True)
+    wash_completo = Column(Integer, nullable=True)
+    wash_lujo = Column(Integer, nullable=True)
+    wash_moto = Column(Integer, nullable=True)
+    
+    # Minutos gratis
+    basico_free_minutes = Column(Integer, default=0)
+    especial_free_minutes = Column(Integer, default=0)
+    completo_free_minutes = Column(Integer, default=0)
+    lujo_free_minutes = Column(Integer, default=0)
+    moto_free_minutes = Column(Integer, default=0)
+    
+    # Tarifas extra
+    helmet_fee = Column(Integer, default=0)  # En centavos
+    
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relaciones
     parking_records = relationship("ParkingRecord", back_populates="rate")
 
-    # Constraints
-    __table_args__ = (
-        Index('ix_rates_vehicle_type_rate_type', 'vehicle_type', 'rate_type'),
-        CheckConstraint('price >= 0', name='check_rates_price_positive'),
-    )
-
     def __repr__(self):
-        return f"<Rate(id={self.id}, type='{self.vehicle_type}', rate='{self.rate_type}', price={self.price})>"
+        return f"<Rate(id={self.id}, type='{self.vehicle_type}')>"
 
 
 class WashingService(Base):

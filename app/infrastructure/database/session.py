@@ -16,6 +16,9 @@ SessionLocal = async_sessionmaker(
     class_=AsyncSession
 )
 
+# Alias for consistency
+async_session_maker = SessionLocal
+
 async def get_session():
     async with SessionLocal() as session:
         yield session
