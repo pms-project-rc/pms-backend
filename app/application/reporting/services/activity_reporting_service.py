@@ -1,25 +1,34 @@
 from datetime import date, datetime
 from typing import List, Dict
 from collections import defaultdict
-from app.domain.reporting.repositories.activity_reporting_repository import IActivityReportingRepository
-from app.application.dto.reporting.activity_report_response import ActivityReportResponse, ActivityReportItem
+from app.domain.reporting.entities.activity_report_item import ActivityReportItem as DomainActivityReportItem
+from app.application.dto.reporting.activity_report_response import ActivityReportResponse, ActivityReportItem as DTOActivityReportItem
 
 class ActivityReportingService:
     def __init__(self, repo: IActivityReportingRepository):
         self.repo = repo
 
     async def get_activity_report(self, start_date: date, end_date: date, group_by: str = "day") -> ActivityReportResponse:
-        # 1. Get daily data from DB
-        daily_items = await self.repo.get_daily_activity(start_date, end_date)
+        # 1. Get daily data from DB (Returns Domain Entities)
+        daily_items: List[DomainActivityReportItem] = await self.repo.get_daily_activity(start_date, end_date)
         
-        # 2. Process grouping in Python (DB agnostic and easier for week/month logic)
-        grouped_items: List[ActivityReportItem] = []
+        # 2. Process grouping
+        grouped_items: List[DTOActivityReportItem] = []
         
         if group_by == "day":
-            grouped_items = daily_items
+            # Convert Domain Entities to DTOs
+            grouped_items = [
+                DTOActivityReportItem(
+                    label=item.label,
+                    count=item.count,
+                    total_amount=item.total_amount
+                ) for item in daily_items
+            ]
             
         elif group_by == "week":
-            temp_map: Dict[str, ActivityReportItem] = defaultdict(lambda: ActivityReportItem(label="", count=0, total_amount=0))
+            temp_map: Dict[str, DTOActivityReportItem] = defaultdict(
+                lambda: DTOActivityReportItem(label="", count=0, total_amount=0)
+            )
             
             for item in daily_items:
                 # Parse date string back to date object
@@ -35,7 +44,9 @@ class ActivityReportingService:
             grouped_items = sorted(list(temp_map.values()), key=lambda x: x.label)
             
         elif group_by == "month":
-            temp_map: Dict[str, ActivityReportItem] = defaultdict(lambda: ActivityReportItem(label="", count=0, total_amount=0))
+            temp_map: Dict[str, DTOActivityReportItem] = defaultdict(
+                lambda: DTOActivityReportItem(label="", count=0, total_amount=0)
+            )
             
             for item in daily_items:
                 dt = datetime.strptime(item.label, "%Y-%m-%d").date()

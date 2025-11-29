@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from datetime import date
 from typing import Optional
 
-from app.domain.reporting.services.occupancy_reporting_service import OccupancyReportingService
+from app.application.reporting.services.occupancy_reporting_service import OccupancyReportingService
 from app.infrastructure.repositories.reporting.occupancy_reporting_repository_impl import OccupancyReportingRepositoryImpl
 from app.application.dto.reporting.occupancy_report_response import OccupancyReportResponse
 

@@ -5,14 +5,14 @@ from typing import Optional
 from app.infrastructure.database.session import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domain.reporting.services.dashboard_service import DashboardService
-from app.domain.reporting.services.revenue_service import RevenueService
-from app.domain.reporting.services.washing_analytics_service import WashingAnalyticsService
+from app.application.reporting.services.dashboard_service import DashboardService
+from app.application.reporting.services.revenue_service import RevenueService
+from app.application.reporting.services.washing_analytics_service import WashingAnalyticsService
 
 from app.infrastructure.repositories.financial.expense_repository_impl import ExpenseRepositoryImpl
 from app.infrastructure.repositories.financial.bonus_repository_impl import BonusRepositoryImpl
 from app.infrastructure.repositories.reporting.occupancy_reporting_repository_impl import OccupancyReportingRepositoryImpl
-from app.infrastructure.washers.washer_repository_impl import WasherRepositoryImpl
+from app.infrastructure.repositories.washers.washer_repository_impl import WasherRepositoryImpl
 from app.infrastructure.repositories.washing.washing_service_repository_impl import WashingServiceRepositoryImpl
 
 from app.application.dto.reporting.dashboard_response import DashboardMetricsResponse

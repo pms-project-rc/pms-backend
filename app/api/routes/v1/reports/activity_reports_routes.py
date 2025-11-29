@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from datetime import date, timedelta
 from typing import Literal
-from app.domain.reporting.services.activity_reporting_service import ActivityReportingService
+from app.application.reporting.services.activity_reporting_service import ActivityReportingService
 from app.infrastructure.repositories.reporting.activity_reporting_repository_impl import ActivityReportingRepositoryImpl
 from app.application.dto.reporting.activity_report_response import ActivityReportResponse
 

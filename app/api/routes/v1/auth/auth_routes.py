@@ -3,9 +3,9 @@ from app.application.dto.auth.login_request import LoginRequest
 from app.application.dto.auth.token_response import TokenResponse
 from app.application.dto.auth.password_reset_request import PasswordResetRequest
 from app.application.dto.auth.password_reset_confirm import PasswordResetConfirm
-from app.domain.users.use_cases.login_global_admin import LoginGlobalAdmin
-from app.domain.users.use_cases.request_password_reset import RequestPasswordReset
-from app.domain.users.use_cases.reset_password import ResetPassword
+from app.application.auth.services.login_global_admin import LoginGlobalAdmin
+from app.application.auth.services.request_password_reset import RequestPasswordReset
+from app.application.auth.services.reset_password import ResetPassword
 from app.infrastructure.repositories.users.global_admin_repository_impl import GlobalAdminRepositoryImpl
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])

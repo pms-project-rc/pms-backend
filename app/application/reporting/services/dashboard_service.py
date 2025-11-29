@@ -5,10 +5,10 @@ from collections import defaultdict
 from app.application.dto.reporting.dashboard_response import (
     DashboardMetricsResponse, GeneralMetrics, OperationalMetrics, TrendPoint
 )
-from app.domain.reporting.services.revenue_service import RevenueService
+from app.application.reporting.services.revenue_service import RevenueService
 from app.domain.financial.repositories.expense_repository import ExpenseRepository
 from app.domain.financial.repositories.bonus_repository import BonusRepository
-from app.domain.reporting.services.washing_analytics_service import WashingAnalyticsService
+from app.application.reporting.services.washing_analytics_service import WashingAnalyticsService
 from app.domain.reporting.repositories.occupancy_reporting_repository import OccupancyReportingRepository
 from app.domain.washers.repositories.washer_repository import IWasherRepository
 

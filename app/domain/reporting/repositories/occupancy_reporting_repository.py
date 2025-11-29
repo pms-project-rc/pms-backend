@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 from datetime import datetime
-from app.infrastructure.database.models.vehicles import ParkingRecord
+from app.domain.parking.entities.parking_record import ParkingRecord
 
 class OccupancyReportingRepository(ABC):
     @abstractmethod

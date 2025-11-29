@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query
 from datetime import date
-from app.domain.reporting.services.washing_analytics_service import WashingAnalyticsService
+from app.application.reporting.services.washing_analytics_service import WashingAnalyticsService
 from app.infrastructure.repositories.washing.washing_service_repository_impl import WashingServiceRepositoryImpl
 from app.api.schemas.reporting_schemas import WashingAnalyticsResponse
 

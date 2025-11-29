@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import date
 from typing import List
-from app.application.dto.reporting.agreement_report_response import AgreementReportItem
+from app.domain.reporting.entities.agreement_report_item import AgreementReportItem
 
 class IAgreementReportingRepository(ABC):
     @abstractmethod

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.api.schemas.shift_schemas import ShiftCreate, ShiftResponse
-from app.domain.financial.use_cases.start_shift import StartShift
-from app.domain.financial.use_cases.close_shift import CloseShift
+from app.application.financial.services.start_shift import StartShift
+from app.application.financial.services.close_shift import CloseShift
 from app.infrastructure.repositories.financial.shift_repository_impl import ShiftRepositoryImpl
 from app.infrastructure.repositories.financial.expense_repository_impl import ExpenseRepositoryImpl
 from app.infrastructure.repositories.washing.washing_service_repository_impl import WashingServiceRepositoryImpl

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import Response
 from datetime import date, timedelta
-from app.domain.reporting.services.agreement_reporting_service import AgreementReportingService
+from app.application.reporting.services.agreement_reporting_service import AgreementReportingService
 from app.infrastructure.repositories.reporting.agreement_reporting_repository_impl import AgreementReportingRepositoryImpl
 from app.application.dto.reporting.agreement_report_response import AgreementReportResponse
 

@@ -1,0 +1,1 @@
+from .washer_repository import IWasherRepository

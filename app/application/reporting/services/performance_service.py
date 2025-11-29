@@ -1,6 +1,6 @@
 from datetime import date
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.domain.reporting.services.revenue_service import RevenueService
+from app.application.reporting.services.revenue_service import RevenueService
 from app.domain.financial.repositories.expense_repository import ExpenseRepository
 from app.domain.financial.repositories.bonus_repository import BonusRepository
 from app.api.schemas.reporting_schemas import PerformanceReportResponse

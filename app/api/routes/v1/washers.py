@@ -1,12 +1,12 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
-from app.infrastructure.washers.washer_repository_impl import WasherRepositoryImpl
-from app.domain.washers.use_cases.create_washer import CreateWasher
-from app.domain.washers.use_cases.get_washer import GetWasher
-from app.domain.washers.use_cases.list_washers import ListWashers
-from app.domain.washers.use_cases.update_washer import UpdateWasher
-from app.domain.washers.use_cases.delete_washer import DeleteWasher
-from app.domain.washers.use_cases.update_all_washers_commission import UpdateAllWashersCommission
+from app.infrastructure.repositories.washers.washer_repository_impl import WasherRepositoryImpl
+from app.application.washers.services.create_washer import CreateWasher
+from app.application.washers.services.get_washer import GetWasher
+from app.application.washers.services.list_washers import ListWashers
+from app.application.washers.services.update_washer import UpdateWasher
+from app.application.washers.services.delete_washer import DeleteWasher
+from app.application.washers.services.update_all_washers_commission import UpdateAllWashersCommission
 from app.application.dto.washers.washer_request import WasherCreateRequest, WasherUpdateRequest, WasherBulkUpdateCommissionRequest
 from app.application.dto.washers.washer_response import WasherResponse
 

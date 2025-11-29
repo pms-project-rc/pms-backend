@@ -1,6 +1,7 @@
 from app.domain.washers.repositories.washer_repository import IWasherRepository
 from app.domain.washers.entities.washer import Washer
 from app.application.dto.washers.washer_request import WasherCreateRequest
+from app.core.security import get_password_hash
 
 
 class CreateWasher:
@@ -9,8 +10,7 @@ class CreateWasher:
         self.repo = repo
 
     async def execute(self, data: WasherCreateRequest):
-        # TODO: Implement proper password hashing
-        password_hash = f"hashed_{data.password}"
+        password_hash = get_password_hash(data.password)
         
         washer = Washer(
             id=None,

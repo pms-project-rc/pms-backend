@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from datetime import date
 from typing import List
 from app.api.schemas.financial_schemas import BonusCalculationResult, MonthlyBonusResponse
-from app.domain.financial.use_cases.calculate_daily_bonuses import CalculateDailyBonuses
-from app.domain.financial.use_cases.get_monthly_bonuses import GetMonthlyBonuses
-from app.domain.financial.use_cases.apply_advance_deduction import ApplyAdvanceDeduction
+from app.application.financial.services.calculate_daily_bonuses import CalculateDailyBonuses
+from app.application.financial.services.get_monthly_bonuses import GetMonthlyBonuses
+from app.application.financial.services.apply_advance_deduction import ApplyAdvanceDeduction
 from app.infrastructure.repositories.financial.bonus_repository_impl import BonusRepositoryImpl
 from app.infrastructure.repositories.washing.washing_service_repository_impl import WashingServiceRepositoryImpl
-from app.infrastructure.washers.washer_repository_impl import WasherRepositoryImpl
+from app.infrastructure.repositories.washers.washer_repository_impl import WasherRepositoryImpl
 from app.infrastructure.repositories.financial.employee_advance_repository_impl import EmployeeAdvanceRepositoryImpl
 
 router = APIRouter()

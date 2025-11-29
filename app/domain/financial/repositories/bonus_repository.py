@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 from datetime import date
-from app.infrastructure.database.models.financial import Bonus
+from app.domain.financial.entities.bonus import Bonus
 
 class BonusRepository(ABC):
     @abstractmethod

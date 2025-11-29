@@ -3,7 +3,7 @@ from typing import List, Dict, Any
 from app.domain.financial.repositories.bonus_repository import BonusRepository
 from app.domain.washing.repositories.washing_service_repository import WashingServiceRepository
 from app.domain.washers.repositories.washer_repository import IWasherRepository
-from app.domain.financial.use_cases.apply_advance_deduction import ApplyAdvanceDeduction
+from app.application.financial.services.apply_advance_deduction import ApplyAdvanceDeduction
 from app.infrastructure.database.models.financial import Bonus
 
 class CalculateDailyBonuses:

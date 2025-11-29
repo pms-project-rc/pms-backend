@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import date
 from typing import List
-from app.application.dto.reporting.activity_report_response import ActivityReportItem
+from app.domain.reporting.entities.activity_report_item import ActivityReportItem
 
 class IActivityReportingRepository(ABC):
     @abstractmethod

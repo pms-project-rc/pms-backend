@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import date
 from app.infrastructure.database.session import get_session
-from app.domain.reporting.services.performance_service import PerformanceService
+from app.application.reporting.services.performance_service import PerformanceService
 from app.infrastructure.repositories.financial.expense_repository_impl import ExpenseRepositoryImpl
 from app.infrastructure.repositories.financial.bonus_repository_impl import BonusRepositoryImpl
 from app.api.schemas.reporting_schemas import PerformanceReportResponse

@@ -1,0 +1,1 @@
+from .washing_service_repository import WashingServiceRepository

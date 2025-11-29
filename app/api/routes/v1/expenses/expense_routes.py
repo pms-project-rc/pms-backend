@@ -1,9 +1,9 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.api.schemas.expense_schemas import ExpenseCreate, ExpenseResponse
-from app.domain.financial.use_cases.register_expense import RegisterExpense
-from app.domain.financial.use_cases.delete_expense import DeleteExpense
-from app.domain.financial.use_cases.list_expenses import ListExpenses
+from app.application.financial.services.register_expense import RegisterExpense
+from app.application.financial.services.delete_expense import DeleteExpense
+from app.application.financial.services.list_expenses import ListExpenses
 from app.infrastructure.repositories.financial.expense_repository_impl import ExpenseRepositoryImpl
 from app.api.dependencies.auth import get_current_user
 

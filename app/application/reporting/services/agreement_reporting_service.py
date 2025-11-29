@@ -2,18 +2,27 @@ from datetime import date
 import csv
 import io
 from app.domain.reporting.repositories.agreement_reporting_repository import IAgreementReportingRepository
-from app.application.dto.reporting.agreement_report_response import AgreementReportResponse
+from app.application.dto.reporting.agreement_report_response import AgreementReportResponse, AgreementReportItem as DTOAgreementReportItem
 
 class AgreementReportingService:
     def __init__(self, repo: IAgreementReportingRepository):
         self.repo = repo
 
     async def get_report(self, start_date: date, end_date: date) -> AgreementReportResponse:
-        items = await self.repo.get_agreement_stats(start_date, end_date)
+        domain_items = await self.repo.get_agreement_stats(start_date, end_date)
+        
+        dto_items = [
+            DTOAgreementReportItem(
+                company_name=item.company_name,
+                total_washes=item.total_washes,
+                total_amount=item.total_amount
+            ) for item in domain_items
+        ]
+        
         return AgreementReportResponse(
             start_date=start_date,
             end_date=end_date,
-            items=items
+            items=dto_items
         )
 
     async def generate_csv(self, start_date: date, end_date: date) -> str:

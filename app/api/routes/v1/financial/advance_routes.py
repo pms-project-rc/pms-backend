@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.api.schemas.financial_schemas import EmployeeAdvanceCreate, EmployeeAdvanceResponse
-from app.domain.financial.use_cases.register_employee_advance import RegisterEmployeeAdvance
+from app.application.financial.services.register_employee_advance import RegisterEmployeeAdvance
 from app.infrastructure.repositories.financial.employee_advance_repository_impl import EmployeeAdvanceRepositoryImpl
 from app.api.dependencies.auth import get_current_user
 
