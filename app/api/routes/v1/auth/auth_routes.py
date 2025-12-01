@@ -9,6 +9,8 @@ from app.application.auth.services.request_password_reset import RequestPassword
 from app.application.auth.services.reset_password import ResetPassword
 from app.infrastructure.repositories.users.global_admin_repository_impl import GlobalAdminRepositoryImpl
 from app.infrastructure.repositories.users.operational_admin_repository_impl import OperationalAdminRepositoryImpl
+from app.infrastructure.repositories.washers.washer_repository_impl import WasherRepositoryImpl
+from app.core.security import verify_password, create_access_token
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -17,6 +19,55 @@ def get_global_admin_repo():
 
 def get_operational_admin_repo():
     return OperationalAdminRepositoryImpl()
+
+def get_washer_repo():
+    return WasherRepositoryImpl()
+
+@router.post("/login", response_model=TokenResponse)
+async def login_unified(
+    data: LoginRequest, 
+    global_repo: GlobalAdminRepositoryImpl = Depends(get_global_admin_repo),
+    operational_repo: OperationalAdminRepositoryImpl = Depends(get_operational_admin_repo),
+    washer_repo: WasherRepositoryImpl = Depends(get_washer_repo)
+):
+    """
+    Unified login endpoint that tries to authenticate with any role:
+    1. Global Admin
+    2. Operational Admin
+    3. Washer
+    """
+    
+    # Try Global Admin
+    uc = LoginGlobalAdmin(global_repo)
+    token = await uc.execute(data.email, data.password)
+    if token:
+        return token
+    
+    # Try Operational Admin
+    uc = LoginOperationalAdmin(operational_repo)
+    token = await uc.execute(data.email, data.password)
+    if token:
+        return token
+    
+    # Try Washer
+    washer = await washer_repo.get_by_email(data.email)
+    if washer:
+        if verify_password(data.password, washer.password_hash):
+            if washer.is_active and washer.id:
+                access_token = create_access_token(subject=washer.id, additional_claims={"role": "washer"})
+                return TokenResponse(
+                    access_token=access_token,
+                    token_type="bearer",
+                    user_id=washer.id,
+                    email=washer.email,
+                    role="washer"
+                )
+    
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Incorrect email or password",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
 
 @router.post("/login/global-admin", response_model=TokenResponse)
 async def login_global_admin(

@@ -33,3 +33,8 @@ class IWasherRepository(ABC):
     async def count_active(self) -> int:
         """Cuenta el número de lavadores activos."""
         pass
+
+    @abstractmethod
+    async def get_by_email(self, email: str) -> Optional['Washer']:
+        """Obtiene un lavador por su email."""
+        pass
