@@ -36,11 +36,27 @@ from app.api.routes.v1.shifts import shift_routes
 app.include_router(shift_routes.router, prefix="/api/v1")
 
 # app.include_router(users.router, prefix="/api/v1/users", tags=["Users"])
-# app.include_router(parking.router, prefix="/api/v1/parking", tags=["Parking"])
 # app.include_router(washing.router, prefix="/api/v1/washing", tags=["Washing"])
 # app.include_router(shifts.router, prefix="/api/v1/shifts", tags=["Shifts"])
+
+from app.api.routes.v1.parking import parking_routes, rate_routes
+app.include_router(parking_routes.router, prefix="/api/v1")
+app.include_router(rate_routes.router, prefix="/api/v1/parking")
+
+from app.api.routes.v1.washing import washing_routes
+app.include_router(washing_routes.router, prefix="/api/v1/washing")
+
+from app.api.routes.v1.subscriptions import subscription_routes
+app.include_router(subscription_routes.router, prefix="/api/v1")
+
+from app.api.routes.v1.agreements import agreement_routes
+app.include_router(agreement_routes.router, prefix="/api/v1")
+
+from app.api.routes.v1.notifications import notification_routes
+app.include_router(notification_routes.router, prefix="/api/v1")
+
 from app.api.routes.v1 import washers
-app.include_router(washers.router, prefix="/api/v1/washing")
+app.include_router(washers.router, prefix="/api/v1")
 
 from app.api.routes.v1.financial import advance_routes
 app.include_router(advance_routes.router, prefix="/api/v1")
@@ -68,6 +84,12 @@ app.include_router(occupancy_reports_routes.router, prefix="/api/v1/reports", ta
 
 from app.api.routes.v1.reports import dashboard_routes
 app.include_router(dashboard_routes.router, prefix="/api/v1/reports", tags=["Reports"])
+
+from app.api.routes.v1.reports import summary_stats_routes
+app.include_router(summary_stats_routes.router, prefix="/api/v1/reports")
+
+from app.api.routes.v1.reports import export_routes
+app.include_router(export_routes.router, prefix="/api/v1/reports")
 
 @app.get("/")
 async def root():

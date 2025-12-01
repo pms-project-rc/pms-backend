@@ -4,14 +4,19 @@ from app.application.dto.auth.token_response import TokenResponse
 from app.application.dto.auth.password_reset_request import PasswordResetRequest
 from app.application.dto.auth.password_reset_confirm import PasswordResetConfirm
 from app.application.auth.services.login_global_admin import LoginGlobalAdmin
+from app.application.auth.services.login_operational_admin import LoginOperationalAdmin
 from app.application.auth.services.request_password_reset import RequestPasswordReset
 from app.application.auth.services.reset_password import ResetPassword
 from app.infrastructure.repositories.users.global_admin_repository_impl import GlobalAdminRepositoryImpl
+from app.infrastructure.repositories.users.operational_admin_repository_impl import OperationalAdminRepositoryImpl
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 def get_global_admin_repo():
     return GlobalAdminRepositoryImpl()
+
+def get_operational_admin_repo():
+    return OperationalAdminRepositoryImpl()
 
 @router.post("/login/global-admin", response_model=TokenResponse)
 async def login_global_admin(
@@ -19,6 +24,22 @@ async def login_global_admin(
     repo: GlobalAdminRepositoryImpl = Depends(get_global_admin_repo)
 ):
     uc = LoginGlobalAdmin(repo)
+    token = await uc.execute(data.email, data.password)
+    
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return token
+
+@router.post("/login/operational-admin", response_model=TokenResponse)
+async def login_operational_admin(
+    data: LoginRequest, 
+    repo: OperationalAdminRepositoryImpl = Depends(get_operational_admin_repo)
+):
+    uc = LoginOperationalAdmin(repo)
     token = await uc.execute(data.email, data.password)
     
     if not token:

@@ -1,8 +1,25 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 from datetime import date
+from app.domain.washing.entities.washing_service import WashingService
 
-class WashingServiceRepository(ABC):
+class IWashingServiceRepository(ABC):
+    @abstractmethod
+    async def create(self, service: WashingService) -> WashingService:
+        pass
+
+    @abstractmethod
+    async def get_by_id(self, service_id: int) -> Optional[WashingService]:
+        pass
+
+    @abstractmethod
+    async def update(self, service_id: int, service: WashingService) -> WashingService:
+        pass
+
+    @abstractmethod
+    async def list_active(self) -> List[WashingService]:
+        pass
+
     @abstractmethod
     async def get_total_income_by_shift(self, shift_id: int) -> int:
         """Calcula el ingreso total de lavados para un turno."""
@@ -17,3 +34,4 @@ class WashingServiceRepository(ABC):
     async def get_washing_duration_stats(self, start_date: date, end_date: date) -> List[dict]:
         """Obtiene estadísticas de duración de lavados agrupadas por lavador y tipo de servicio."""
         pass
+

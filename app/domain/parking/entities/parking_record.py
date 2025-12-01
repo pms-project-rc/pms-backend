@@ -9,12 +9,12 @@ class ParkingRecord:
     shift_id: int
     admin_id: int
     entry_time: datetime
-    exit_time: Optional[datetime]
     parking_rate_id: int
-    subscription_id: Optional[int]
-    washing_service_id: Optional[int]
-    helmet_count: int
-    helmet_charge: int
-    total_cost: int
-    payment_status: str
-    notes: Optional[str]
+    exit_time: Optional[datetime] = None
+    subscription_id: Optional[int] = None
+    washing_service_id: Optional[int] = None
+    helmet_count: int = 0
+    helmet_charge: int = 0
+    total_cost: int = 0
+    payment_status: str = "pending"
+    notes: Optional[str] = None

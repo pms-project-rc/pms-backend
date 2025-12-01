@@ -1,16 +1,16 @@
 from datetime import date
 from typing import List, Dict, Any
 from app.domain.financial.repositories.bonus_repository import BonusRepository
-from app.domain.washing.repositories.washing_service_repository import WashingServiceRepository
 from app.domain.washers.repositories.washer_repository import IWasherRepository
 from app.application.financial.services.apply_advance_deduction import ApplyAdvanceDeduction
-from app.infrastructure.database.models.financial import Bonus
+from app.domain.financial.entities.bonus import Bonus
+from app.domain.washing.repositories.washing_service_repository import IWashingServiceRepository
 
 class CalculateDailyBonuses:
     def __init__(
         self,
         bonus_repository: BonusRepository,
-        washing_repository: WashingServiceRepository,
+        washing_repository: IWashingServiceRepository,
         washer_repository: IWasherRepository,
         apply_deduction_use_case: ApplyAdvanceDeduction
     ):

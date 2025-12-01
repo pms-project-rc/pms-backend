@@ -1,10 +1,10 @@
 from datetime import date, timedelta
 from typing import List
-from app.domain.washing.repositories.washing_service_repository import WashingServiceRepository
+from app.domain.washing.repositories.washing_service_repository import IWashingServiceRepository
 from app.api.schemas.reporting_schemas import WashingAnalyticsResponse, WashingDurationStat
 
 class WashingAnalyticsService:
-    def __init__(self, washing_repository: WashingServiceRepository):
+    def __init__(self, washing_repository: IWashingServiceRepository):
         self.washing_repository = washing_repository
 
     async def get_duration_analytics(self, start_date: date, end_date: date) -> WashingAnalyticsResponse:

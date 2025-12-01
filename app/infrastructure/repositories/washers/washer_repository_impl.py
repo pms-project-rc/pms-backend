@@ -1,6 +1,5 @@
 from typing import List, Optional
 from sqlalchemy import select, update, delete, func
-
 from app.domain.washers.entities.washer import Washer
 from app.domain.washers.repositories.washer_repository import IWasherRepository
 from app.infrastructure.database.session import SessionLocal
@@ -8,7 +7,6 @@ from app.infrastructure.database.models.users import Washer as WasherModel
 
 
 class WasherRepositoryImpl(IWasherRepository):
-
     def _to_entity(self, model: WasherModel) -> Optional[Washer]:
         if not model:
             return None

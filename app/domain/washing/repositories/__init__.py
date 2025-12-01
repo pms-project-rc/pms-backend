@@ -1,1 +1,1 @@
-from .washing_service_repository import WashingServiceRepository
+from .washing_service_repository import IWashingServiceRepository
