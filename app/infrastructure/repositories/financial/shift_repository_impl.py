@@ -14,6 +14,7 @@ class ShiftRepositoryImpl(ShiftRepository):
         return Shift(
             id=model.id,
             admin_id=model.admin_id,
+            washer_id=model.washer_id,
             shift_date=model.shift_date,
             start_time=model.start_time,
             end_time=model.end_time,
@@ -48,6 +49,7 @@ class ShiftRepositoryImpl(ShiftRepository):
             # Create new
             model = ShiftModel(
                 admin_id=shift.admin_id,
+                washer_id=shift.washer_id,
                 shift_date=shift.shift_date,
                 start_time=shift.start_time,
                 initial_cash=shift.initial_cash,
@@ -69,12 +71,13 @@ class ShiftRepositoryImpl(ShiftRepository):
             return self._to_entity(model)
 
     async def get_active_shift_by_admin(self, admin_id: int) -> Optional[Shift]:
+        """Get active shift by admin_id or washer_id (method works for both)"""
         async with SessionLocal() as session:
             result = await session.execute(
                 select(ShiftModel).where(
                     and_(
-                        ShiftModel.admin_id == admin_id,
-                        ShiftModel.end_time.is_(None)
+                        ShiftModel.end_time.is_(None),
+                        (ShiftModel.admin_id == admin_id) | (ShiftModel.washer_id == admin_id)
                     )
                 )
             )

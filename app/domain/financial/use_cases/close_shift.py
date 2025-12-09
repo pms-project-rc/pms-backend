@@ -18,9 +18,15 @@ class CloseShift:
         self.washing_repository = washing_repository
         self.parking_repository = parking_repository
 
-    async def execute(self, admin_id: int) -> Shift:
+    async def execute(self, admin_id: int = None, washer_id: int = None) -> Shift:
         # Get active shift
-        shift = await self.shift_repository.get_active_shift_by_admin(admin_id)
+        if admin_id:
+            shift = await self.shift_repository.get_active_shift_by_admin(admin_id)
+        elif washer_id:
+            shift = await self.shift_repository.get_active_shift_by_admin(washer_id)
+        else:
+            raise ValueError("Se requiere admin_id o washer_id")
+            
         if not shift:
             raise ValueError("No hay un turno activo para cerrar.")
 

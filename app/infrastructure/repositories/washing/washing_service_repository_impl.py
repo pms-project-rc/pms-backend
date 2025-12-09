@@ -101,6 +101,26 @@ class WashingServiceRepositoryImpl(IWashingServiceRepository):
             models = result.scalars().all()
             return [self._to_entity(m) for m in models]
 
+    async def list_by_washer(self, washer_id: int) -> List[WashingService]:
+        """Get all services assigned to a specific washer (active and recent)"""
+        async with SessionLocal() as session:
+            # Show services assigned to this washer OR services completed in the last 24 hours
+            cutoff_time = datetime.now(timezone.utc) - timedelta(hours=24)
+            
+            result = await session.execute(
+                select(WashingServiceModel)
+                .where(WashingServiceModel.washer_id == washer_id)
+                .where(
+                    or_(
+                        WashingServiceModel.end_time.is_(None),
+                        WashingServiceModel.end_time >= cutoff_time
+                    )
+                )
+                .order_by(WashingServiceModel.service_date.desc())
+            )
+            models = result.scalars().all()
+            return [self._to_entity(m) for m in models]
+
     async def get_total_income_by_shift(self, shift_id: int) -> int:
         async with SessionLocal() as session:
             result = await session.execute(

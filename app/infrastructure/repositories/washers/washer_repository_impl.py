@@ -116,3 +116,8 @@ class WasherRepositoryImpl(IWasherRepository):
             )
             model = result.scalar_one_or_none()
             return self._to_entity(model)
+
+    # Alias for consistency with other repositories
+    async def get_by_id(self, washer_id: int) -> Optional[Washer]:
+        """Alias for get() method to maintain consistency with other repositories"""
+        return await self.get(washer_id)

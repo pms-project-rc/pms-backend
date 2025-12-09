@@ -14,7 +14,8 @@ class Shift(Base):
     
     # Columnas
     id = Column(Integer, primary_key=True, index=True)
-    admin_id = Column(Integer, ForeignKey("operational_admins.id", ondelete="RESTRICT"), nullable=False, index=True)
+    admin_id = Column(Integer, ForeignKey("operational_admins.id", ondelete="RESTRICT"), nullable=True, index=True)
+    washer_id = Column(Integer, ForeignKey("washers.id", ondelete="RESTRICT"), nullable=True, index=True)
     shift_date = Column(Date, nullable=False, index=True)
     start_time = Column(TIMESTAMP(timezone=True), nullable=False)
     end_time = Column(TIMESTAMP(timezone=True), nullable=True)
@@ -28,6 +29,7 @@ class Shift(Base):
     
     # Relaciones
     admin = relationship("OperationalAdmin", back_populates="shifts")
+    washer = relationship("Washer", back_populates="shifts")
     expenses = relationship("Expense", back_populates="shift", cascade="all, delete-orphan")
     bonuses = relationship("Bonus", back_populates="shift", cascade="all, delete-orphan")
     washing_services = relationship("WashingService", back_populates="shift")
@@ -45,7 +47,8 @@ class Shift(Base):
     )
     
     def __repr__(self):
-        return f"<Shift(id={self.id}, admin_id={self.admin_id}, date={self.shift_date})>"
+        owner = f"admin_id={self.admin_id}" if self.admin_id else f"washer_id={self.washer_id}"
+        return f"<Shift(id={self.id}, {owner}, date={self.shift_date})>"
 
 
 class Expense(Base):

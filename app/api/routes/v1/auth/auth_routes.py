@@ -59,7 +59,10 @@ async def login_unified(
                     additional_claims={
                         "role": "washer",
                         "user_id": washer.id,
-                        "username": washer.email
+                        "username": washer.email,
+                        "email": washer.email,
+                        "full_name": washer.full_name,
+                        "commission_percentage": washer.commission_percentage
                     }
                 )
                 return TokenResponse(

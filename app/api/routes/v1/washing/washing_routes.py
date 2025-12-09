@@ -7,7 +7,7 @@ from app.application.washing.create_washing_service_use_case import CreateWashin
 from app.infrastructure.repositories.washing.washing_service_repository_impl import WashingServiceRepositoryImpl
 from app.infrastructure.repositories.parking.vehicle_repository_impl import VehicleRepositoryImpl
 from app.infrastructure.repositories.parking.parking_record_repository_impl import ParkingRecordRepositoryImpl
-from app.api.dependencies.auth import get_current_admin
+from app.api.dependencies.auth import get_current_admin, get_current_washer
 
 router = APIRouter(prefix="", tags=["Washing Services"])
 
@@ -114,6 +114,55 @@ async def list_active_services(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error listing services: {str(e)}"
+        )
+
+@router.get("/my-services", response_model=List[WashingServiceResponse])
+async def list_my_services(
+    current_washer = Depends(get_current_washer)
+):
+    """
+    List all washing services assigned to the current washer.
+    Only returns services where washer_id matches current washer.
+    """
+    try:
+        repo = WashingServiceRepositoryImpl()
+        vehicle_repo = VehicleRepositoryImpl()
+        
+        # Obtener solo servicios asignados a este lavador
+        services = await repo.list_by_washer(current_washer.id)
+        
+        response = []
+        for s in services:
+            # This is N+1 problem, but acceptable for MVP with low volume
+            vehicle = await vehicle_repo.get_by_id(s.vehicle_id)
+            plate = vehicle.plate if vehicle else "UNKNOWN"
+
+            # Determinar el estado basado en los campos disponibles
+            if s.end_time:
+                service_status = "completed"
+            elif s.start_time:
+                service_status = "in_progress"
+            else:
+                service_status = "pending"
+
+            response.append(WashingServiceResponse(
+                id=s.id,
+                vehicle_id=s.vehicle_id,
+                plate=plate,
+                service_type=s.service_type,
+                price=s.price,
+                status=service_status,  # Usar el estado calculado
+                washer_id=s.washer_id,
+                service_date=s.service_date,
+                start_time=s.start_time,
+                end_time=s.end_time
+            ))
+            
+        return response
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error listing washer services: {str(e)}"
         )
 
 @router.put("/{service_id}/assign/{washer_id}", response_model=WashingServiceResponse)

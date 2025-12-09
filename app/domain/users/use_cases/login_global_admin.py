@@ -26,7 +26,9 @@ class LoginGlobalAdmin:
             additional_claims={
                 "role": "global_admin",
                 "user_id": admin.id,
-                "username": admin.email
+                "username": admin.email,
+                "email": admin.email,
+                "full_name": admin.full_name
             }
         )
         return TokenResponse(

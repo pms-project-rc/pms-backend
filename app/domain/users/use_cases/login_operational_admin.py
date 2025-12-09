@@ -26,7 +26,9 @@ class LoginOperationalAdmin:
             additional_claims={
                 "role": "operational_admin",
                 "user_id": admin.id,
-                "username": admin.email
+                "username": admin.email,
+                "email": admin.email,
+                "full_name": admin.full_name
             }
         )
         return TokenResponse(

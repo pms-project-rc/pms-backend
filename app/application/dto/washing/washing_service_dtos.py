@@ -21,6 +21,8 @@ class WashingServiceResponse(BaseModel):
     status: str
     washer_id: Optional[int] = None
     service_date: datetime
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
     
     class Config:
         from_attributes = True
