@@ -128,3 +128,13 @@ class ParkingRecordRepositoryImpl(IParkingRecordRepository):
             )
             models = result.scalars().all()
             return [self._to_entity(m) for m in models]
+
+    async def get_total_income_by_shift(self, shift_id: int) -> int:
+        async with SessionLocal() as session:
+            result = await session.execute(
+                select(func.sum(ParkingRecordModel.total_cost))
+                .where(ParkingRecordModel.shift_id == shift_id)
+                .where(ParkingRecordModel.exit_time.isnot(None))
+            )
+            total = result.scalar()
+            return total if total else 0

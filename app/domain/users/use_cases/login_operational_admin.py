@@ -21,7 +21,14 @@ class LoginOperationalAdmin:
         if admin.id:
             await self.repo.update_last_login(admin.id)
             
-        access_token = create_access_token(subject=admin.id, additional_claims={"role": "operational_admin"})
+        access_token = create_access_token(
+            subject=admin.id, 
+            additional_claims={
+                "role": "operational_admin",
+                "user_id": admin.id,
+                "username": admin.email
+            }
+        )
         return TokenResponse(
             access_token=access_token,
             token_type="bearer",

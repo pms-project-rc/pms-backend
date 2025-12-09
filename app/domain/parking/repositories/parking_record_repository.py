@@ -23,3 +23,7 @@ class IParkingRecordRepository(ABC):
     @abstractmethod
     async def list_active(self) -> List[ParkingRecord]:
         pass
+
+    @abstractmethod
+    async def get_total_income_by_shift(self, shift_id: int) -> int:
+        pass

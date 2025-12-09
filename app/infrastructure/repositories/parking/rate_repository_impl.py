@@ -1,5 +1,5 @@
 from typing import Optional, List
-from sqlalchemy import select
+from sqlalchemy import select, func
 from app.domain.parking.entities.rate import Rate
 from app.domain.parking.repositories.rate_repository import IRateRepository
 from app.infrastructure.database.session import SessionLocal
@@ -31,10 +31,14 @@ class RateRepositoryImpl(IRateRepository):
 
     async def get_active_by_type(self, vehicle_type: str, rate_type: str) -> Optional[Rate]:
         async with SessionLocal() as session:
+            # Normalize inputs for case-insensitive comparison
+            normalized_vehicle_type = vehicle_type.lower().strip()
+            normalized_rate_type = rate_type.lower().strip()
+            
             result = await session.execute(
                 select(RateModel)
-                .where(RateModel.vehicle_type == vehicle_type)
-                .where(RateModel.rate_type == rate_type)
+                .where(func.lower(RateModel.vehicle_type) == normalized_vehicle_type)
+                .where(func.lower(RateModel.rate_type) == normalized_rate_type)
                 .where(RateModel.is_active == True)
             )
             model = result.scalar_one_or_none()

@@ -95,6 +95,37 @@ app.include_router(summary_stats_routes.router, prefix="/api/v1/reports")
 from app.api.routes.v1.reports import export_routes
 app.include_router(export_routes.router, prefix="/api/v1/reports")
 
+# Startup event to seed rates
+@app.on_event("startup")
+async def startup_event():
+    """Seed default rates on startup if they don't exist"""
+    from app.infrastructure.database.session import SessionLocal
+    from app.infrastructure.database.models.services import Rate
+    from sqlalchemy import select
+    
+    try:
+        async with SessionLocal() as session:
+            # Check if rates already exist
+            result = await session.execute(select(Rate))
+            existing_rates = result.scalars().all()
+            
+            if not existing_rates:
+                # Define default rates (prices in centavos)
+                default_rates = [
+                    Rate(vehicle_type="Moto", rate_type="Hora", price=200000, description="Tarifa por hora para motos", is_active=True),
+                    Rate(vehicle_type="Carro", rate_type="Hora", price=300000, description="Tarifa por hora para carros", is_active=True),
+                ]
+                
+                for rate in default_rates:
+                    session.add(rate)
+                
+                await session.commit()
+                print(f"✓ {len(default_rates)} default rates created on startup")
+            else:
+                print(f"✓ Rates already exist ({len(existing_rates)} rates found)")
+    except Exception as e:
+        print(f"⚠ Error seeding rates on startup: {e}")
+
 @app.get("/")
 async def root():
     return {

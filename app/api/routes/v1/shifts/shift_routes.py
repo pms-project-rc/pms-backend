@@ -6,7 +6,7 @@ from app.infrastructure.repositories.financial.shift_repository_impl import Shif
 from app.infrastructure.repositories.financial.expense_repository_impl import ExpenseRepositoryImpl
 from app.infrastructure.repositories.washing.washing_service_repository_impl import WashingServiceRepositoryImpl
 from app.infrastructure.repositories.parking.parking_record_repository_impl import ParkingRecordRepositoryImpl
-from app.api.dependencies.auth import get_current_user
+from app.api.dependencies.auth import get_current_admin
 
 router = APIRouter(prefix="/shifts", tags=["Shifts"])
 
@@ -26,7 +26,7 @@ def get_parking_repository():
 async def start_shift(
     shift_data: ShiftCreate,
     shift_repository: ShiftRepositoryImpl = Depends(get_shift_repository),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_admin)
 ):
     use_case = StartShift(shift_repository)
     try:
@@ -40,7 +40,7 @@ async def close_shift(
     expense_repository: ExpenseRepositoryImpl = Depends(get_expense_repository),
     washing_repository: WashingServiceRepositoryImpl = Depends(get_washing_repository),
     parking_repository: ParkingRecordRepositoryImpl = Depends(get_parking_repository),
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_admin)
 ):
     use_case = CloseShift(
         shift_repository,
@@ -52,3 +52,17 @@ async def close_shift(
         return await use_case.execute(admin_id=current_user.id)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@router.get("/active", response_model=ShiftResponse, status_code=status.HTTP_200_OK)
+async def get_active_shift(
+    shift_repository: ShiftRepositoryImpl = Depends(get_shift_repository),
+    current_user = Depends(get_current_admin)
+):
+    """Get the current active shift for the logged-in admin"""
+    active_shift = await shift_repository.get_active_shift_by_admin(current_user.id)
+    if not active_shift:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No active shift found"
+        )
+    return active_shift

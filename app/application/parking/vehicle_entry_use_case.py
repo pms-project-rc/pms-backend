@@ -71,8 +71,8 @@ class VehicleEntryUseCase:
         subscription_id = active_subscription.id if active_subscription else None
 
         # Get the appropriate rate for this vehicle type
-        # Default to "hour" (hourly) rate type
-        rate = await self.rate_repo.get_active_by_type(vehicle_type, "hour")
+        # Default to "hora" (hourly) rate type - Spanish to match database
+        rate = await self.rate_repo.get_active_by_type(vehicle_type, "hora")
         if not rate:
             raise ValueError(f"No active rate found for vehicle type: {vehicle_type}")
         

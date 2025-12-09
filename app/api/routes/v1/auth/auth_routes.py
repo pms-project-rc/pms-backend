@@ -54,7 +54,14 @@ async def login_unified(
     if washer:
         if verify_password(data.password, washer.password_hash):
             if washer.is_active and washer.id:
-                access_token = create_access_token(subject=washer.id, additional_claims={"role": "washer"})
+                access_token = create_access_token(
+                    subject=washer.id, 
+                    additional_claims={
+                        "role": "washer",
+                        "user_id": washer.id,
+                        "username": washer.email
+                    }
+                )
                 return TokenResponse(
                     access_token=access_token,
                     token_type="bearer",
