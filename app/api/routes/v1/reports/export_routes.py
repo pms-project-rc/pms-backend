@@ -7,8 +7,7 @@ from app.application.reports.export_reports_use_case import ExportReportsUseCase
 from app.domain.reporting.services.export_service import ExportService
 from app.infrastructure.repositories.parking.parking_record_repository_impl import ParkingRecordRepositoryImpl
 from app.infrastructure.repositories.parking.vehicle_repository_impl import VehicleRepositoryImpl
-from app.api.dependencies.auth import get_current_operational_admin
-from app.infrastructure.database.models.users import OperationalAdmin
+from app.api.dependencies.auth import get_current_admin
 
 router = APIRouter(prefix="/export", tags=["Reports Export"])
 
@@ -17,7 +16,7 @@ async def export_parking_history(
     start_date: Optional[date] = Query(None),
     end_date: Optional[date] = Query(None),
     format: str = Query("csv", enum=["csv", "excel", "pdf"]),
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin)
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     Export parking history report.

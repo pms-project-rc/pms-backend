@@ -109,3 +109,12 @@ class SubscriptionRepositoryImpl(ISubscriptionRepository):
             )
             models = result.scalars().all()
             return [self._to_entity(m) for m in models]
+
+    async def list_all(self) -> List[MonthlySubscription]:
+        """List all subscriptions (active and inactive)."""
+        async with SessionLocal() as session:
+            result = await session.execute(
+                select(SubscriptionModel).order_by(SubscriptionModel.created_at.desc())
+            )
+            models = result.scalars().all()
+            return [self._to_entity(m) for m in models]

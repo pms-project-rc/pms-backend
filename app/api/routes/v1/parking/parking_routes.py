@@ -9,8 +9,7 @@ from app.application.parking.services.register_exit import RegisterExit
 from app.infrastructure.repositories.parking.vehicle_repository_impl import VehicleRepositoryImpl
 from app.infrastructure.repositories.parking.parking_record_repository_impl import ParkingRecordRepositoryImpl
 from app.infrastructure.repositories.parking.rate_repository_impl import RateRepositoryImpl
-from app.api.dependencies.auth import get_current_operational_admin
-from app.infrastructure.database.models.users import OperationalAdmin
+from app.api.dependencies.auth import get_current_admin
 
 router = APIRouter(prefix="/parking", tags=["Parking"])
 
@@ -97,6 +96,8 @@ async def register_entry(
             "helmet_charge": parking_record.helmet_charge,
             "plate": request.plate
         }
+    except HTTPException:
+        raise
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -153,9 +154,90 @@ async def register_exit(
         )
 
 
+@router.get("/records", status_code=status.HTTP_200_OK)
+async def list_parking_records(
+    status_filter: str = 'all',  # 'all', 'active', 'completed'
+    limit: int = 50,
+    current_admin: any = Depends(get_current_admin)
+):
+    """
+    List parking records with optional filtering by status.
+    """
+    try:
+        from app.infrastructure.database.session import SessionLocal
+        from app.infrastructure.database.models.vehicles import ParkingRecord as ParkingRecordModel, Vehicle as VehicleModel
+        from sqlalchemy import select
+        from sqlalchemy.orm import joinedload
+        from datetime import timezone
+        
+        async with SessionLocal() as session:
+            query = select(ParkingRecordModel).options(joinedload(ParkingRecordModel.vehicle))
+            
+            if status_filter == 'active':
+                query = query.where(ParkingRecordModel.exit_time.is_(None))
+            elif status_filter == 'completed':
+                query = query.where(ParkingRecordModel.exit_time.isnot(None))
+            
+            query = query.order_by(ParkingRecordModel.entry_time.desc()).limit(limit)
+            
+            result = await session.execute(query)
+            records = result.scalars().all()
+            
+            records_data = []
+            for record in records:
+                # Calculate duration
+                duration_str = None
+                duration_hours = None
+                
+                if record.exit_time:
+                    duration = record.exit_time - record.entry_time
+                    duration_hours = round(duration.total_seconds() / 3600, 2)
+                    hours = int(duration.total_seconds() // 3600)
+                    minutes = int((duration.total_seconds() % 3600) // 60)
+                    duration_str = f"{hours}h {minutes}m"
+                else:
+                    now = datetime.now(timezone.utc)
+                    duration = now - record.entry_time
+                    hours = int(duration.total_seconds() // 3600)
+                    minutes = int((duration.total_seconds() % 3600) // 60)
+                    duration_str = f"{hours}h {minutes}m"
+                
+                records_data.append({
+                    "id": record.id,
+                    "vehicle_id": record.vehicle_id,
+                    "plate": record.vehicle.plate,
+                    "vehicle_type": record.vehicle.vehicle_type,
+                    "owner_name": record.vehicle.owner_name,
+                    "owner_phone": record.vehicle.owner_phone,
+                    "brand": record.vehicle.brand,
+                    "model": record.vehicle.model,
+                    "color": record.vehicle.color,
+                    "entry_time": record.entry_time.isoformat(),
+                    "exit_time": record.exit_time.isoformat() if record.exit_time else None,
+                    "helmet_count": record.helmet_count,
+                    "helmet_charge": record.helmet_charge,
+                    "total_cost": record.total_cost,
+                    "payment_status": record.payment_status,
+                    "notes": record.notes,
+                    "duration_so_far": duration_str,
+                    "duration_hours": duration_hours
+                })
+            
+            return {
+                "message": "Parking records retrieved successfully",
+                "count": len(records_data),
+                "records": records_data
+            }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error retrieving parking records: {str(e)}"
+        )
+
+
 @router.get("/active", status_code=status.HTTP_200_OK)
 async def list_active_vehicles(
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin)
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     List all vehicles currently parked (active parking records) with detailed information.
@@ -217,7 +299,7 @@ async def list_active_vehicles(
 @router.get("/vehicle/{plate}", status_code=status.HTTP_200_OK)
 async def get_vehicle_by_plate(
     plate: str,
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin)
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     Get vehicle information by plate number.
@@ -261,7 +343,7 @@ async def get_vehicle_by_plate(
 async def get_vehicle_history(
     plate: str,
     limit: int = 10,
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin)
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     Get parking history for a specific vehicle by plate number.
@@ -341,7 +423,7 @@ async def get_vehicle_history(
 
 @router.get("/rates", status_code=status.HTTP_200_OK)
 async def list_rates(
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin)
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     List all active parking rates.
@@ -374,7 +456,7 @@ async def list_rates(
 
 @router.get("/stats/today", status_code=status.HTTP_200_OK)
 async def get_today_stats(
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin)
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     Get parking statistics for today.

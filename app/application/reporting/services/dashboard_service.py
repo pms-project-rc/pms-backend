@@ -55,7 +55,8 @@ class DashboardService:
         if total_expenses > 0:
             ratio = total_income / total_expenses
         elif total_income > 0:
-            ratio = float('inf') # Or just total_income if expenses 0? Let's keep it simple.
+            # Avoid infinity - use a large number instead
+            ratio = 999.99
             
         general_metrics = GeneralMetrics(
             total_income=total_income,

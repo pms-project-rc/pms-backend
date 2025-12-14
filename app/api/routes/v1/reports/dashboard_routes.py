@@ -16,6 +16,7 @@ from app.infrastructure.repositories.washers.washer_repository_impl import Washe
 from app.infrastructure.repositories.washing.washing_service_repository_impl import WashingServiceRepositoryImpl
 
 from app.application.dto.reporting.dashboard_response import DashboardMetricsResponse
+from app.api.dependencies.auth import get_current_admin
 
 router = APIRouter()
 
@@ -43,7 +44,8 @@ def get_dashboard_service(db: AsyncSession = Depends(get_session)):
 async def get_dashboard_metrics(
     start_date: Optional[date] = Query(None),
     end_date: Optional[date] = Query(None),
-    service: DashboardService = Depends(get_dashboard_service)
+    service: DashboardService = Depends(get_dashboard_service),
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     Obtiene las métricas consolidadas para el dashboard principal.

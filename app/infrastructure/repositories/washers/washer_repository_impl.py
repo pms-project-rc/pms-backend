@@ -76,12 +76,25 @@ class WasherRepositoryImpl(IWasherRepository):
             model = result.scalar_one()
             return self._to_entity(model)
 
-    async def delete(self, washer_id: int):
+    async def delete(self, washer_id: int) -> bool:
+        print(f"DEBUG: WasherRepository deleting id {washer_id}")
         async with SessionLocal() as session:
-            await session.execute(
-                delete(WasherModel).where(WasherModel.id == washer_id)
+            result = await session.execute(
+                select(WasherModel).where(WasherModel.id == washer_id)
             )
-            await session.commit()
+            model = result.scalar_one_or_none()
+            if model:
+                print(f"DEBUG: Washer found: {model.email}, deleting...")
+                try:
+                    await session.delete(model)
+                    await session.commit()
+                    print("DEBUG: Delete committed")
+                    return True
+                except Exception as e:
+                    print(f"DEBUG: Error during delete commit: {e}")
+                    raise e
+            print("DEBUG: Washer not found")
+            return False
 
     async def update_all_commission(self, percentage: int):
         async with SessionLocal() as session:
@@ -106,3 +119,8 @@ class WasherRepositoryImpl(IWasherRepository):
             )
             model = result.scalar_one_or_none()
             return self._to_entity(model)
+
+    # Alias for consistency with other repositories
+    async def get_by_id(self, washer_id: int) -> Optional[Washer]:
+        """Alias for get() method to maintain consistency with other repositories"""
+        return await self.get(washer_id)

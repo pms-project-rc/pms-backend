@@ -7,10 +7,9 @@ from app.application.washing.create_washing_service_use_case import CreateWashin
 from app.infrastructure.repositories.washing.washing_service_repository_impl import WashingServiceRepositoryImpl
 from app.infrastructure.repositories.parking.vehicle_repository_impl import VehicleRepositoryImpl
 from app.infrastructure.repositories.parking.parking_record_repository_impl import ParkingRecordRepositoryImpl
-from app.api.dependencies.auth import get_current_operational_admin
-from app.infrastructure.database.models.users import OperationalAdmin
+from app.api.dependencies.auth import get_current_admin, get_current_washer
 
-router = APIRouter(prefix="/services", tags=["Washing Services"])
+router = APIRouter(prefix="", tags=["Washing Services"])
 
 def get_create_washing_service_use_case() -> CreateWashingServiceUseCase:
     washing_repo = WashingServiceRepositoryImpl()
@@ -21,7 +20,7 @@ def get_create_washing_service_use_case() -> CreateWashingServiceUseCase:
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=WashingServiceResponse)
 async def create_washing_service(
     request: WashingServiceRequest,
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin),
+    current_admin: any = Depends(get_current_admin),
     use_case: CreateWashingServiceUseCase = Depends(get_create_washing_service_use_case)
 ):
     """
@@ -72,6 +71,8 @@ async def create_washing_service(
             washer_id=service.washer_id,
             service_date=service.service_date
         )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -80,7 +81,7 @@ async def create_washing_service(
 
 @router.get("/active", response_model=List[WashingServiceResponse])
 async def list_active_services(
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin)
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     List all active washing services.
@@ -115,11 +116,60 @@ async def list_active_services(
             detail=f"Error listing services: {str(e)}"
         )
 
+@router.get("/my-services", response_model=List[WashingServiceResponse])
+async def list_my_services(
+    current_washer = Depends(get_current_washer)
+):
+    """
+    List all washing services assigned to the current washer.
+    Only returns services where washer_id matches current washer.
+    """
+    try:
+        repo = WashingServiceRepositoryImpl()
+        vehicle_repo = VehicleRepositoryImpl()
+        
+        # Obtener solo servicios asignados a este lavador
+        services = await repo.list_by_washer(current_washer.id)
+        
+        response = []
+        for s in services:
+            # This is N+1 problem, but acceptable for MVP with low volume
+            vehicle = await vehicle_repo.get_by_id(s.vehicle_id)
+            plate = vehicle.plate if vehicle else "UNKNOWN"
+
+            # Determinar el estado basado en los campos disponibles
+            if s.end_time:
+                service_status = "completed"
+            elif s.start_time:
+                service_status = "in_progress"
+            else:
+                service_status = "pending"
+
+            response.append(WashingServiceResponse(
+                id=s.id,
+                vehicle_id=s.vehicle_id,
+                plate=plate,
+                service_type=s.service_type,
+                price=s.price,
+                status=service_status,  # Usar el estado calculado
+                washer_id=s.washer_id,
+                service_date=s.service_date,
+                start_time=s.start_time,
+                end_time=s.end_time
+            ))
+            
+        return response
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error listing washer services: {str(e)}"
+        )
+
 @router.put("/{service_id}/assign/{washer_id}", response_model=WashingServiceResponse)
 async def assign_washer(
     service_id: int,
     washer_id: int,
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin)
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     Assign a washer to a service.
@@ -163,7 +213,7 @@ async def assign_washer(
 @router.put("/{service_id}/complete", response_model=WashingServiceResponse)
 async def complete_service(
     service_id: int,
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin)
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     Mark a washing service as completed and paid.

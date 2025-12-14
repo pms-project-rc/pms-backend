@@ -1,5 +1,5 @@
-from sqlalchemy import select, func, cast, Date, update
-from datetime import date
+from sqlalchemy import select, func, cast, Date, update, or_
+from datetime import date, datetime, time, timedelta, timezone
 from typing import List, Optional
 from app.domain.washing.entities.washing_service import WashingService
 from app.domain.washing.repositories.washing_service_repository import IWashingServiceRepository
@@ -84,9 +84,38 @@ class WashingServiceRepositoryImpl(IWashingServiceRepository):
 
     async def list_active(self) -> List[WashingService]:
         async with SessionLocal() as session:
+            # Show active services OR services completed in the last 24 hours
+            # This handles timezone issues better than filtering by "today"
+            cutoff_time = datetime.now(timezone.utc) - timedelta(hours=24)
+            
             result = await session.execute(
                 select(WashingServiceModel)
-                .where(WashingServiceModel.end_time.is_(None))
+                .where(
+                    or_(
+                        WashingServiceModel.end_time.is_(None),
+                        WashingServiceModel.end_time >= cutoff_time
+                    )
+                )
+                .order_by(WashingServiceModel.service_date.desc())
+            )
+            models = result.scalars().all()
+            return [self._to_entity(m) for m in models]
+
+    async def list_by_washer(self, washer_id: int) -> List[WashingService]:
+        """Get all services assigned to a specific washer (active and recent)"""
+        async with SessionLocal() as session:
+            # Show services assigned to this washer OR services completed in the last 24 hours
+            cutoff_time = datetime.now(timezone.utc) - timedelta(hours=24)
+            
+            result = await session.execute(
+                select(WashingServiceModel)
+                .where(WashingServiceModel.washer_id == washer_id)
+                .where(
+                    or_(
+                        WashingServiceModel.end_time.is_(None),
+                        WashingServiceModel.end_time >= cutoff_time
+                    )
+                )
                 .order_by(WashingServiceModel.service_date.desc())
             )
             models = result.scalars().all()

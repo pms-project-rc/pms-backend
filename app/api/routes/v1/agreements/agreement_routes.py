@@ -6,15 +6,14 @@ from app.application.agreements.create_agreement_use_case import CreateAgreement
 from app.application.agreements.add_vehicle_to_agreement_use_case import AddVehicleToAgreementUseCase
 from app.infrastructure.repositories.agreements.agreement_repository_impl import AgreementRepositoryImpl
 from app.infrastructure.repositories.parking.vehicle_repository_impl import VehicleRepositoryImpl
-from app.api.dependencies.auth import get_current_operational_admin
-from app.infrastructure.database.models.users import OperationalAdmin
+from app.api.dependencies.auth import get_current_admin
 
 router = APIRouter(prefix="/agreements", tags=["Agreements"])
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=AgreementResponse)
 async def create_agreement(
     request: AgreementRequest,
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin)
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     Create a new company agreement.
@@ -62,7 +61,7 @@ async def create_agreement(
 @router.get("/", response_model=List[AgreementResponse])
 async def list_agreements(
     active_only: bool = False,
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin)
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     List all agreements or only active ones.
@@ -100,7 +99,7 @@ async def list_agreements(
 @router.get("/{agreement_id}", response_model=AgreementResponse)
 async def get_agreement(
     agreement_id: int,
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin)
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     Get agreement by ID.
@@ -140,7 +139,7 @@ async def get_agreement(
 async def add_vehicle_to_agreement(
     agreement_id: int,
     request: AddVehicleRequest,
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin)
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     Add a vehicle to an agreement.
@@ -167,7 +166,7 @@ async def add_vehicle_to_agreement(
 async def remove_vehicle_from_agreement(
     agreement_id: int,
     plate: str,
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin)
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     Remove a vehicle from an agreement.

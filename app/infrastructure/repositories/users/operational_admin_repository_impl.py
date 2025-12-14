@@ -64,3 +64,55 @@ class OperationalAdminRepositoryImpl(IOperationalAdminRepository):
                 .values(last_login=func.now())
             )
             await session.commit()
+    
+    async def get_all(self):
+        """Obtiene todos los administradores operacionales."""
+        async with SessionLocal() as session:
+            result = await session.execute(select(OperationalAdminModel))
+            models = result.scalars().all()
+            return [OperationalAdminModel(
+                id=m.id,
+                email=m.email,
+                full_name=m.full_name,
+                phone=m.phone,
+                is_active=m.is_active,
+                created_at=m.created_at,
+                password_hash=m.password_hash
+            ) for m in models]
+    
+    async def update(self, admin_id: int, admin: OperationalAdmin) -> OperationalAdmin:
+        """Actualiza un administrador operacional."""
+        async with SessionLocal() as session:
+            stmt = (
+                update(OperationalAdminModel)
+                .where(OperationalAdminModel.id == admin_id)
+                .values(
+                    full_name=admin.full_name,
+                    email=admin.email,
+                    phone=admin.phone,
+                    is_active=admin.is_active,
+                    password_hash=admin.password_hash
+                )
+            )
+            await session.execute(stmt)
+            await session.commit()
+            
+            result = await session.execute(
+                select(OperationalAdminModel).where(OperationalAdminModel.id == admin_id)
+            )
+            model = result.scalar_one()
+            return self._to_entity(model)
+
+    async def delete(self, admin_id: int) -> bool:
+        """Elimina un administrador operacional."""
+        async with SessionLocal() as session:
+            result = await session.execute(
+                select(OperationalAdminModel).where(OperationalAdminModel.id == admin_id)
+            )
+            model = result.scalar_one_or_none()
+            if model:
+                await session.delete(model)
+                await session.commit()
+                return True
+            return False
+

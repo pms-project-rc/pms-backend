@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import List
 from datetime import date
 
@@ -7,15 +7,60 @@ from app.application.subscriptions.create_subscription_use_case import CreateSub
 from app.application.subscriptions.check_active_subscription_use_case import CheckActiveSubscriptionUseCase
 from app.infrastructure.repositories.subscriptions.subscription_repository_impl import SubscriptionRepositoryImpl
 from app.infrastructure.repositories.parking.vehicle_repository_impl import VehicleRepositoryImpl
-from app.api.dependencies.auth import get_current_operational_admin
-from app.infrastructure.database.models.users import OperationalAdmin
+from app.api.dependencies.auth import get_current_admin
 
 router = APIRouter(prefix="/subscriptions", tags=["Subscriptions"])
+
+@router.get("/", response_model=List[dict])
+async def list_all_subscriptions(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    current_admin: any = Depends(get_current_admin)
+):
+    """
+    List all subscriptions (active and inactive) with vehicle details.
+    """
+    try:
+        sub_repo = SubscriptionRepositoryImpl()
+        vehicle_repo = VehicleRepositoryImpl()
+        
+        # Get all subscriptions
+        subscriptions = await sub_repo.list_all()
+        
+        # Apply pagination
+        paginated_subs = subscriptions[skip:skip + limit]
+        
+        response = []
+        for sub in paginated_subs:
+            vehicle = await vehicle_repo.get_by_id(sub.vehicle_id)
+            
+            result = {
+                "id": sub.id,
+                "vehicle_plate": vehicle.plate if vehicle else "UNKNOWN",
+                "start_date": sub.start_date.isoformat(),
+                "end_date": sub.end_date.isoformat(),
+                "price": sub.monthly_fee,
+                "is_active": sub.end_date >= date.today(),
+                "vehicle": {
+                    "plate": vehicle.plate,
+                    "vehicle_type": vehicle.vehicle_type,
+                    "owner_name": vehicle.owner_name,
+                    "owner_phone": vehicle.owner_phone
+                } if vehicle else None
+            }
+            response.append(result)
+            
+        return response
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error listing subscriptions: {str(e)}"
+        )
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=SubscriptionResponse)
 async def create_subscription(
     request: SubscriptionRequest,
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin)
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     Create a new monthly subscription.
@@ -63,7 +108,7 @@ async def create_subscription(
 @router.get("/check/{plate}", response_model=SubscriptionResponse)
 async def check_subscription(
     plate: str,
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin)
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     Check if a vehicle has an active subscription.
@@ -103,7 +148,7 @@ async def check_subscription(
 
 @router.get("/active", response_model=List[SubscriptionResponse])
 async def list_active_subscriptions(
-    current_admin: OperationalAdmin = Depends(get_current_operational_admin)
+    current_admin: any = Depends(get_current_admin)
 ):
     """
     List all active subscriptions.

@@ -25,7 +25,17 @@ class LoginWasher:
             # Washer entity doesn't have last_login currently
             pass
             
-        access_token = create_access_token(subject=washer.id, additional_claims={"role": "washer"})
+        access_token = create_access_token(
+            subject=washer.id, 
+            additional_claims={
+                "role": "washer",
+                "user_id": washer.id,
+                "username": washer.email,
+                "email": washer.email,
+                "full_name": washer.full_name,
+                "commission_percentage": washer.commission_percentage
+            }
+        )
         return TokenResponse(
             access_token=access_token,
             token_type="bearer",

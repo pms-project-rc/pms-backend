@@ -4,11 +4,12 @@ from typing import Optional
 
 @dataclass
 class Shift:
-    admin_id: int
     shift_date: date
     start_time: datetime
     initial_cash: int = 0
     id: Optional[int] = None
+    admin_id: Optional[int] = None
+    washer_id: Optional[int] = None
     end_time: Optional[datetime] = None
     final_cash: Optional[int] = None
     total_income: int = 0
