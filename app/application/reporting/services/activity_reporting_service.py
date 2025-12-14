@@ -3,6 +3,7 @@ from typing import List, Dict
 from collections import defaultdict
 from app.domain.reporting.entities.activity_report_item import ActivityReportItem as DomainActivityReportItem
 from app.application.dto.reporting.activity_report_response import ActivityReportResponse, ActivityReportItem as DTOActivityReportItem
+from app.domain.reporting.repositories.activity_reporting_repository import IActivityReportingRepository
 
 class ActivityReportingService:
     def __init__(self, repo: IActivityReportingRepository):

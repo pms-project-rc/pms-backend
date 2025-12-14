@@ -1,1 +1,3 @@
-from .parking_record_repository import ParkingRecordRepository
+from .parking_record_repository import IParkingRecordRepository
+from .rate_repository import IRateRepository
+

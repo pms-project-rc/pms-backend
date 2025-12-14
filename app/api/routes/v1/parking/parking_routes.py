@@ -4,8 +4,8 @@ from datetime import datetime
 
 from app.application.dto.parking.entry_request import EntryRequest
 from app.application.dto.parking.exit_request import ExitRequest
-from app.application.parking.vehicle_entry_use_case import VehicleEntryUseCase
-from app.application.parking.vehicle_exit_use_case import VehicleExitUseCase
+from app.application.parking.services.register_entry import RegisterEntry
+from app.application.parking.services.register_exit import RegisterExit
 from app.infrastructure.repositories.parking.vehicle_repository_impl import VehicleRepositoryImpl
 from app.infrastructure.repositories.parking.parking_record_repository_impl import ParkingRecordRepositoryImpl
 from app.infrastructure.repositories.parking.rate_repository_impl import RateRepositoryImpl
@@ -18,30 +18,25 @@ router = APIRouter(prefix="/parking", tags=["Parking"])
 from app.infrastructure.repositories.subscriptions.subscription_repository_impl import SubscriptionRepositoryImpl
 from app.infrastructure.repositories.agreements.agreement_repository_impl import AgreementRepositoryImpl
 from app.infrastructure.repositories.washing.washing_service_repository_impl import WashingServiceRepositoryImpl
+from app.infrastructure.repositories.financial.shift_repository_impl import ShiftRepositoryImpl
 
 # Dependency to get repositories and use cases
-def get_vehicle_entry_use_case() -> VehicleEntryUseCase:
+def get_vehicle_entry_use_case() -> RegisterEntry:
     vehicle_repo = VehicleRepositoryImpl()
     parking_record_repo = ParkingRecordRepositoryImpl()
     rate_repo = RateRepositoryImpl()
-    subscription_repo = SubscriptionRepositoryImpl()
-    return VehicleEntryUseCase(vehicle_repo, parking_record_repo, rate_repo, subscription_repo)
+    shift_repo = ShiftRepositoryImpl()
+    return RegisterEntry(vehicle_repo, parking_record_repo, rate_repo, shift_repo)
 
 
-def get_vehicle_exit_use_case() -> VehicleExitUseCase:
+def get_vehicle_exit_use_case() -> RegisterExit:
     vehicle_repo = VehicleRepositoryImpl()
     parking_record_repo = ParkingRecordRepositoryImpl()
     rate_repo = RateRepositoryImpl()
-    subscription_repo = SubscriptionRepositoryImpl()
-    agreement_repo = AgreementRepositoryImpl()
-    washing_repo = WashingServiceRepositoryImpl()
-    return VehicleExitUseCase(
+    return RegisterExit(
         vehicle_repo,
         parking_record_repo,
-        rate_repo,
-        subscription_repo,
-        agreement_repo,
-        washing_repo
+        rate_repo
     )
 
 
@@ -49,7 +44,7 @@ def get_vehicle_exit_use_case() -> VehicleExitUseCase:
 async def register_entry(
     request: EntryRequest,
     current_admin: OperationalAdmin = Depends(get_current_operational_admin),
-    use_case: VehicleEntryUseCase = Depends(get_vehicle_entry_use_case)
+    use_case: RegisterEntry = Depends(get_vehicle_entry_use_case)
 ):
     """
     Register a vehicle entry to the parking lot.
@@ -89,17 +84,8 @@ async def register_entry(
             shift_id = active_shift.id
         
         parking_record = await use_case.execute(
-            plate=request.plate,
-            vehicle_type=request.vehicle_type,
-            owner_name=request.owner_name,
-            shift_id=shift_id,
-            admin_id=current_admin.id,
-            owner_phone=request.owner_phone,
-            brand=request.brand,
-            model=request.model,
-            color=request.color,
-            notes=request.notes,
-            helmet_count=request.helmet_count
+            data=request,
+            admin_id=current_admin.id
         )
         
         return {
@@ -127,7 +113,7 @@ async def register_entry(
 async def register_exit(
     request: ExitRequest,
     current_admin: OperationalAdmin = Depends(get_current_operational_admin),
-    use_case: VehicleExitUseCase = Depends(get_vehicle_exit_use_case)
+    use_case: RegisterExit = Depends(get_vehicle_exit_use_case)
 ):
     """
     Register a vehicle exit from the parking lot and calculate the total cost.
@@ -137,8 +123,7 @@ async def register_exit(
     """
     try:
         parking_record = await use_case.execute(
-            plate=request.plate,
-            notes=request.notes
+            data=request
         )
         
         # Calculate duration

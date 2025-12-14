@@ -5,6 +5,7 @@ from app.application.dto.auth.password_reset_request import PasswordResetRequest
 from app.application.dto.auth.password_reset_confirm import PasswordResetConfirm
 from app.application.auth.services.login_global_admin import LoginGlobalAdmin
 from app.application.auth.services.login_operational_admin import LoginOperationalAdmin
+from app.application.auth.services.login_washer import LoginWasher
 from app.application.auth.services.request_password_reset import RequestPasswordReset
 from app.application.auth.services.reset_password import ResetPassword
 from app.infrastructure.repositories.users.global_admin_repository_impl import GlobalAdminRepositoryImpl
@@ -50,18 +51,10 @@ async def login_unified(
         return token
     
     # Try Washer
-    washer = await washer_repo.get_by_email(data.email)
-    if washer:
-        if verify_password(data.password, washer.password_hash):
-            if washer.is_active and washer.id:
-                access_token = create_access_token(subject=washer.id, additional_claims={"role": "washer"})
-                return TokenResponse(
-                    access_token=access_token,
-                    token_type="bearer",
-                    user_id=washer.id,
-                    email=washer.email,
-                    role="washer"
-                )
+    uc = LoginWasher(washer_repo)
+    token = await uc.execute(data.email, data.password)
+    if token:
+        return token
     
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
