@@ -27,3 +27,7 @@ class IParkingRecordRepository(ABC):
     @abstractmethod
     async def get_total_income_by_shift(self, shift_id: int) -> int:
         pass
+
+    @abstractmethod
+    async def get_income_by_date(self, query_date: date) -> int:
+        pass

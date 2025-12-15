@@ -138,3 +138,14 @@ class ParkingRecordRepositoryImpl(IParkingRecordRepository):
             )
             total = result.scalar()
             return total if total else 0
+
+    async def get_income_by_date(self, query_date: date) -> int:
+        async with SessionLocal() as session:
+            result = await session.execute(
+                select(func.sum(ParkingRecordModel.total_cost))
+                .where(func.date(ParkingRecordModel.exit_time) == query_date)
+                # We include both 'paid' and 'completed' just in case, or just check if total_cost > 0
+                .where(ParkingRecordModel.total_cost > 0)
+            )
+            total = result.scalar()
+            return total if total else 0

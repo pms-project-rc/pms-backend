@@ -64,6 +64,12 @@ class RegisterEntry:
              raise HTTPException(status_code=400, detail=f"No active rate found for {data.vehicle_type}")
 
         # 5. Create Record
+        # Calculate helmet charge immediately if applicable
+        # Assuming fixed cost of 5000 per helmet for now, or fetch from config/rate
+        # Ideally this should come from a configuration or Rate table
+        HELMET_PRICE = 5000
+        helmet_charge = (data.helmet_count or 0) * HELMET_PRICE
+
         record = ParkingRecord(
             id=None,
             vehicle_id=vehicle.id,
@@ -72,10 +78,8 @@ class RegisterEntry:
             entry_time=datetime.now(),
             parking_rate_id=rate.id,
             helmet_count=data.helmet_count,
-            helmet_charge=0, # Calculated on exit or if fixed charge? Usually on exit or fixed.
-            # If helmet has a cost, we might need a Rate for helmets too.
-            # For now, 0.
-            total_cost=0,
+            helmet_charge=helmet_charge, 
+            total_cost=0, # Initial cost is 0, calculated on exit
             payment_status="pending",
             notes=data.notes
         )

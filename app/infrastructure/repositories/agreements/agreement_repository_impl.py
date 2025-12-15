@@ -1,6 +1,7 @@
 from typing import List, Optional
 from datetime import date
 from sqlalchemy import select, update, delete as sql_delete
+from sqlalchemy.orm import selectinload, joinedload
 from app.domain.agreements.entities.agreement import Agreement
 from app.domain.agreements.repositories.agreement_repository import IAgreementRepository
 from app.infrastructure.database.session import SessionLocal
@@ -11,6 +12,18 @@ class AgreementRepositoryImpl(IAgreementRepository):
     def _to_entity(self, model: AgreementModel) -> Optional[Agreement]:
         if not model:
             return None
+            
+        vehicles = []
+        if hasattr(model, 'agreement_vehicles'):
+            for av in model.agreement_vehicles:
+                if av.vehicle:
+                    vehicles.append({
+                        "id": av.vehicle.id,
+                        "plate": av.vehicle.plate,
+                        "vehicle_type": av.vehicle.vehicle_type,
+                        "owner_name": av.vehicle.owner_name
+                    })
+
         return Agreement(
             id=model.id,
             company_name=model.company_name,
@@ -24,23 +37,27 @@ class AgreementRepositoryImpl(IAgreementRepository):
             is_active=model.is_active,
             notes=model.notes,
             created_at=model.created_at,
-            updated_at=model.updated_at
+            updated_at=model.updated_at,
+            vehicles=vehicles
         )
 
     def _to_model(self, entity: Agreement) -> AgreementModel:
-        return AgreementModel(
-            id=entity.id,
-            company_name=entity.company_name,
-            contact_name=entity.contact_name,
-            contact_phone=entity.contact_phone,
-            contact_email=entity.contact_email,
-            start_date=entity.start_date,
-            end_date=entity.end_date,
-            discount_percentage=entity.discount_percentage,
-            special_rate=entity.special_rate,
-            is_active=entity.is_active,
-            notes=entity.notes
-        )
+        data = {
+            "company_name": entity.company_name,
+            "contact_name": entity.contact_name,
+            "contact_phone": entity.contact_phone,
+            "contact_email": entity.contact_email,
+            "start_date": entity.start_date,
+            "end_date": entity.end_date,
+            "discount_percentage": entity.discount_percentage,
+            "special_rate": entity.special_rate,
+            "is_active": entity.is_active,
+            "notes": entity.notes
+        }
+        if entity.id is not None:
+            data["id"] = entity.id
+            
+        return AgreementModel(**data)
 
     async def create(self, agreement: Agreement) -> Agreement:
         async with SessionLocal() as session:
@@ -95,15 +112,20 @@ class AgreementRepositoryImpl(IAgreementRepository):
     async def list_active(self) -> List[Agreement]:
         async with SessionLocal() as session:
             result = await session.execute(
-                select(AgreementModel).where(AgreementModel.is_active == 'active')
+                select(AgreementModel)
+                .options(selectinload(AgreementModel.agreement_vehicles).joinedload(AgreementVehicle.vehicle))
+                .where(AgreementModel.is_active == 'active')
             )
-            models = result.scalars().all()
+            models = result.unique().scalars().all()
             return [self._to_entity(m) for m in models]
 
     async def list_all(self) -> List[Agreement]:
         async with SessionLocal() as session:
-            result = await session.execute(select(AgreementModel))
-            models = result.scalars().all()
+            result = await session.execute(
+                select(AgreementModel)
+                .options(selectinload(AgreementModel.agreement_vehicles).joinedload(AgreementVehicle.vehicle))
+            )
+            models = result.unique().scalars().all()
             return [self._to_entity(m) for m in models]
 
     async def add_vehicle_to_agreement(self, agreement_id: int, vehicle_id: int):

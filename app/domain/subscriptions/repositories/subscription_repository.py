@@ -18,6 +18,11 @@ class ISubscriptionRepository(ABC):
         pass
 
     @abstractmethod
+    async def get_by_date_range(self, start_date: date, end_date: date) -> List[MonthlySubscription]:
+        """Obtiene suscripciones creadas o renovadas en un rango de fechas."""
+        pass
+
+    @abstractmethod
     async def update(self, subscription_id: int, subscription: MonthlySubscription) -> MonthlySubscription:
         pass
 

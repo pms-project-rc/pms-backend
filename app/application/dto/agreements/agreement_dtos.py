@@ -13,6 +13,18 @@ class AgreementRequest(BaseModel):
     special_rate: Optional[int] = None
     notes: Optional[str] = None
 
+class UpdateAgreementRequest(BaseModel):
+    company_name: Optional[str] = None
+    contact_name: Optional[str] = None
+    start_date: Optional[date] = None
+    discount_percentage: Optional[int] = None
+    contact_phone: Optional[str] = None
+    contact_email: Optional[str] = None
+    end_date: Optional[date] = None
+    special_rate: Optional[int] = None
+    notes: Optional[str] = None
+    is_active: Optional[str] = None
+
 class AgreementResponse(BaseModel):
     id: int
     company_name: str
@@ -25,9 +37,11 @@ class AgreementResponse(BaseModel):
     special_rate: Optional[int]
     is_active: str
     notes: Optional[str]
+    vehicles: Optional[list] = []
     
     class Config:
         from_attributes = True
 
 class AddVehicleRequest(BaseModel):
     plate: str
+    vehicle_type: Optional[str] = "Automovil"

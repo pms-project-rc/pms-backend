@@ -3,10 +3,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.infrastructure.repositories.users.global_admin_repository_impl import GlobalAdminRepositoryImpl
 from app.infrastructure.repositories.users.operational_admin_repository_impl import OperationalAdminRepositoryImpl
 from app.infrastructure.repositories.washers.washer_repository_impl import WasherRepositoryImpl
-from app.domain.users.use_cases.list_all_employees import ListAllEmployees
-from app.domain.users.use_cases.create_employee import CreateEmployee
-from app.domain.users.use_cases.delete_employee import DeleteEmployee
-from app.domain.users.use_cases.update_employee import UpdateEmployee
+from app.application.auth.services.list_all_employees import ListAllEmployees
+from app.application.auth.services.create_employee import CreateEmployee
+from app.application.auth.services.delete_employee import DeleteEmployee
+from app.application.auth.services.update_employee import UpdateEmployee
 from app.application.dto.users.employee_response import EmployeeResponse
 from app.application.dto.users.employee_create_request import EmployeeCreateRequest
 from app.application.dto.users.employee_update_request import EmployeeUpdateRequest

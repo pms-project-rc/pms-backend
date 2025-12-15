@@ -110,6 +110,30 @@ class SubscriptionRepositoryImpl(ISubscriptionRepository):
             models = result.scalars().all()
             return [self._to_entity(m) for m in models]
 
+    async def get_by_date_range(self, start_date: date, end_date: date) -> List[MonthlySubscription]:
+        async with SessionLocal() as session:
+            # We assume created_at reflects the payment date for new subscriptions
+            # For renewals, if they update the record, we might miss them if we only check created_at.
+            # However, usually renewals might create a new record or update updated_at.
+            # Let's check created_at OR updated_at within range?
+            # If updated_at is used, we might count non-financial updates.
+            # Ideally we should have a Transaction table.
+            # For now, let's use created_at as a proxy for "New Subscription Payment".
+            # If the system updates existing records for renewal, we need to check updated_at too.
+            # Given the previous context, let's stick to created_at for now, or cast to date.
+            
+            # Using cast to date for comparison
+            from sqlalchemy import cast, Date
+            
+            result = await session.execute(
+                select(SubscriptionModel)
+                .where(cast(SubscriptionModel.created_at, Date) >= start_date)
+                .where(cast(SubscriptionModel.created_at, Date) <= end_date)
+                .where(SubscriptionModel.payment_status == 'paid')
+            )
+            models = result.scalars().all()
+            return [self._to_entity(m) for m in models]
+
     async def list_all(self) -> List[MonthlySubscription]:
         """List all subscriptions (active and inactive)."""
         async with SessionLocal() as session:

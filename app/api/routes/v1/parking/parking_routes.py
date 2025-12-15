@@ -9,7 +9,8 @@ from app.application.parking.services.register_exit import RegisterExit
 from app.infrastructure.repositories.parking.vehicle_repository_impl import VehicleRepositoryImpl
 from app.infrastructure.repositories.parking.parking_record_repository_impl import ParkingRecordRepositoryImpl
 from app.infrastructure.repositories.parking.rate_repository_impl import RateRepositoryImpl
-from app.api.dependencies.auth import get_current_admin
+from app.api.dependencies.auth import get_current_operational_admin, get_current_admin
+from app.infrastructure.database.models.users import OperationalAdmin
 
 router = APIRouter(prefix="/parking", tags=["Parking"])
 

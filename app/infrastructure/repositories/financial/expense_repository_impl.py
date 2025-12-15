@@ -94,3 +94,14 @@ class ExpenseRepositoryImpl(ExpenseRepository):
             )
             result = await session.execute(stmt)
             return [{'date': row.expense_date, 'total': row.total} for row in result]
+
+    async def get_by_date_range(self, start_date: date, end_date: date) -> List[Expense]:
+        async with SessionLocal() as session:
+            result = await session.execute(
+                select(ExpenseModel)
+                .where(ExpenseModel.expense_date >= start_date)
+                .where(ExpenseModel.expense_date <= end_date)
+                .order_by(ExpenseModel.expense_date)
+            )
+            models = result.scalars().all()
+            return [self._to_entity(m) for m in models]

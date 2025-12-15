@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
+from datetime import date
 from app.domain.washers.entities.washer import Washer
 
 
@@ -27,6 +28,14 @@ class IWasherRepository(ABC):
 
     @abstractmethod
     async def update_all_commission(self, percentage: int):
+        pass
+
+    @abstractmethod
+    async def get_payroll_summary(self, start_date: date, end_date: date) -> List[dict]:
+        pass
+
+    @abstractmethod
+    async def get_washer_payroll_detail(self, washer_id: int, start_date: date, end_date: date) -> List[dict]:
         pass
 
     @abstractmethod

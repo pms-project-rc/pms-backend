@@ -20,6 +20,11 @@ class ExpenseRepository(ABC):
         pass
 
     @abstractmethod
+    async def get_by_date_range(self, start_date: date, end_date: date) -> List[Expense]:
+        """Obtiene gastos en un rango de fechas."""
+        pass
+
+    @abstractmethod
     async def get_all(self, skip: int = 0, limit: int = 100) -> List[Expense]:
         """Obtiene todos los gastos con paginación."""
         pass

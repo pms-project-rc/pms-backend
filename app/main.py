@@ -49,6 +49,9 @@ app.include_router(washing_routes.router, prefix="/api/v1/washing")
 from app.api.routes.v1.subscriptions import subscription_routes
 app.include_router(subscription_routes.router, prefix="/api/v1")
 
+from app.api.routes.v1.dashboard import dashboard_routes
+app.include_router(dashboard_routes.router, prefix="/api/v1")
+
 from app.api.routes.v1.agreements import agreement_routes
 app.include_router(agreement_routes.router, prefix="/api/v1")
 
@@ -89,8 +92,11 @@ app.include_router(occupancy_reports_routes.router, prefix="/api/v1/reports", ta
 from app.api.routes.v1.reports import dashboard_routes
 app.include_router(dashboard_routes.router, prefix="/api/v1/reports", tags=["Reports"])
 
+from app.api.routes.v1.reports import daily_report_routes
+app.include_router(daily_report_routes.router, prefix="/api/v1")
+
 from app.api.routes.v1.reports import summary_stats_routes
-app.include_router(summary_stats_routes.router, prefix="/api/v1/reports")
+app.include_router(summary_stats_routes.router, prefix="/api/v1")
 
 from app.api.routes.v1.reports import export_routes
 app.include_router(export_routes.router, prefix="/api/v1/reports")

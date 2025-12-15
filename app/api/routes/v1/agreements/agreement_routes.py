@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 
-from app.application.dto.agreements.agreement_dtos import AgreementRequest, AgreementResponse, AddVehicleRequest
+from app.application.dto.agreements.agreement_dtos import AgreementRequest, AgreementResponse, AddVehicleRequest, UpdateAgreementRequest
 from app.application.agreements.create_agreement_use_case import CreateAgreementUseCase
+from app.application.agreements.update_agreement_use_case import UpdateAgreementUseCase
 from app.application.agreements.add_vehicle_to_agreement_use_case import AddVehicleToAgreementUseCase
 from app.infrastructure.repositories.agreements.agreement_repository_impl import AgreementRepositoryImpl
 from app.infrastructure.repositories.parking.vehicle_repository_impl import VehicleRepositoryImpl
@@ -135,6 +136,57 @@ async def get_agreement(
             detail=f"Error getting agreement: {str(e)}"
         )
 
+@router.put("/{agreement_id}", response_model=AgreementResponse)
+async def update_agreement(
+    agreement_id: int,
+    request: UpdateAgreementRequest,
+    current_admin: any = Depends(get_current_admin)
+):
+    """
+    Update an existing agreement.
+    """
+    try:
+        agreement_repo = AgreementRepositoryImpl()
+        use_case = UpdateAgreementUseCase(agreement_repo)
+        
+        agreement = await use_case.execute(
+            agreement_id=agreement_id,
+            company_name=request.company_name,
+            contact_name=request.contact_name,
+            start_date=request.start_date,
+            discount_percentage=request.discount_percentage,
+            contact_phone=request.contact_phone,
+            contact_email=request.contact_email,
+            end_date=request.end_date,
+            special_rate=request.special_rate,
+            notes=request.notes,
+            is_active=request.is_active
+        )
+        
+        return AgreementResponse(
+            id=agreement.id,
+            company_name=agreement.company_name,
+            contact_name=agreement.contact_name,
+            contact_phone=agreement.contact_phone,
+            contact_email=agreement.contact_email,
+            start_date=agreement.start_date,
+            end_date=agreement.end_date,
+            discount_percentage=agreement.discount_percentage,
+            special_rate=agreement.special_rate,
+            is_active=agreement.is_active,
+            notes=agreement.notes
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error updating agreement: {str(e)}"
+        )
+
 @router.post("/{agreement_id}/vehicles", status_code=status.HTTP_201_CREATED)
 async def add_vehicle_to_agreement(
     agreement_id: int,
@@ -144,19 +196,25 @@ async def add_vehicle_to_agreement(
     """
     Add a vehicle to an agreement.
     """
+    print(f"Received request to add vehicle to agreement {agreement_id}: {request}")
     try:
         agreement_repo = AgreementRepositoryImpl()
         vehicle_repo = VehicleRepositoryImpl()
         use_case = AddVehicleToAgreementUseCase(agreement_repo, vehicle_repo)
         
-        result = await use_case.execute(agreement_id, request.plate)
+        result = await use_case.execute(agreement_id, request.plate, request.vehicle_type)
+        print(f"Successfully added vehicle: {result}")
         return result
     except ValueError as e:
+        print(f"ValueError adding vehicle: {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
     except Exception as e:
+        print(f"Unexpected error adding vehicle: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error adding vehicle to agreement: {str(e)}"

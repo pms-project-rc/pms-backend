@@ -101,6 +101,27 @@ class WashingServiceRepositoryImpl(IWashingServiceRepository):
             models = result.scalars().all()
             return [self._to_entity(m) for m in models]
 
+    async def get_by_date(self, service_date: date) -> List[WashingService]:
+        async with SessionLocal() as session:
+            # Use func.date() to cast the timestamp to a date for comparison
+            result = await session.execute(
+                select(WashingServiceModel)
+                .where(func.date(WashingServiceModel.service_date) == service_date)
+            )
+            models = result.scalars().all()
+            return [self._to_entity(m) for m in models]
+
+    async def get_by_date_range(self, start_date: date, end_date: date) -> List[WashingService]:
+        async with SessionLocal() as session:
+            result = await session.execute(
+                select(WashingServiceModel)
+                .where(WashingServiceModel.service_date >= start_date)
+                .where(WashingServiceModel.service_date <= end_date)
+                .order_by(WashingServiceModel.service_date.desc())
+            )
+            models = result.scalars().all()
+            return [self._to_entity(m) for m in models]
+
     async def list_by_washer(self, washer_id: int) -> List[WashingService]:
         """Get all services assigned to a specific washer (active and recent)"""
         async with SessionLocal() as session:

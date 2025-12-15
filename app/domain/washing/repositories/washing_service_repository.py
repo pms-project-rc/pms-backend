@@ -21,6 +21,16 @@ class IWashingServiceRepository(ABC):
         pass
 
     @abstractmethod
+    async def get_by_date(self, service_date: date) -> List[WashingService]:
+        """Obtiene servicios de lavado por fecha."""
+        pass
+
+    @abstractmethod
+    async def get_by_date_range(self, start_date: date, end_date: date) -> List[WashingService]:
+        """Obtiene servicios de lavado en un rango de fechas."""
+        pass
+
+    @abstractmethod
     async def get_total_income_by_shift(self, shift_id: int) -> int:
         """Calcula el ingreso total de lavados para un turno."""
         pass
